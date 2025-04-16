@@ -1,0 +1,12 @@
+body {
+	padding: 0;
+	margin: 0;
+}
+.search {
+	background-color: white;
+	border-radius: 5px;
+}
+.search-icon {
+	font-size: 1.8rem;
+	margin: auto;
+}
