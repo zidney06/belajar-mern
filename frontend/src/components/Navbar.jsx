@@ -59,7 +59,7 @@ export default function Navbar() {
 						px: 3
 					}}>
 					<Box>
-						<Typography variant="h4">Toko Buku</Typography>
+						<Typography variant="h4">Toko Buku Al-Hidayah</Typography>
 					</Box>
 				</Grid>
 				<Grid

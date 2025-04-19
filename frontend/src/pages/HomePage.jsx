@@ -1,5 +1,6 @@
 import {useState} from 'react'
 import Slider from 'react-slick';
+import ProductList from '../components/ProductList'
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import {
@@ -31,31 +32,54 @@ export default function HomePage() {
 		<Container
 			className="tes"
 			disableGutters
-			maxWidth="xl"
-			component="header"
-			sx={{
-				border: '1px solid red',
-				display: 'flex',
-				alignItems: 'center',
-				p: 1.5
-			}}>
+			maxWidth="xl">
 			<Box
 				sx={{
-					width: '80%',
-					height: '280px',
-					margin: 'auto',
-					borderRadius: 5,
-					overflow: 'hidden'
+					p: 1.5
 				}}>
-				<Slider {...settings}>
-	        {imgUrl.map((url, i) => (
-			      <div>
-			      	<img src={url} className="slide" />
-			      </div>
-	        	)
-	        )}
-	        
-        </Slider>
+				<Box
+					sx={{
+						width: '75%',
+						margin: 'auto',
+						p: 1.5
+					}}>
+					<Box
+					sx={{
+						borderRadius: 5,
+						overflow: 'hidden',
+						height: 320,
+					}}>
+						<Slider {...settings}>
+			        {imgUrl.map((url, i) => (
+					      <div>
+					      	<img src={url} className="slide" />
+					      </div>
+			        	)
+			        )}
+		        </Slider>
+					</Box>
+				</Box>
+			</Box>
+
+			<Box
+				sx={{
+					my: 1
+				}}>
+				<ProductList header="Best Seller" />
+			</Box>
+
+			<Box
+				sx={{
+					my: 1
+				}}>
+				<ProductList header="Baru Terbit" />
+			</Box>
+
+			<Box
+				sx={{
+					my: 1
+				}}>
+				<ProductList header="Komik dan Manga" />
 			</Box>
 		</Container>
 	</>
