@@ -1,19 +1,23 @@
 import mongoose from 'mongoose'
 
 const skemaBarang = new mongoose.Schema({
-	name: {
+	title: {
 		type: String,
 		required: true
 	},
-	price: {
-    type: Number,
+	author: {
+    type: String,
     required: true
   },
   image: {
     type: String,
     required: true
   },
-  rating: {
+  ISBN: {
+    type: String,
+    required: true
+  },
+  price: {
     type: Number,
     required: true
   }

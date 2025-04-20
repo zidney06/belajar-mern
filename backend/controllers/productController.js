@@ -2,7 +2,6 @@ import mongoose from "mongoose"
 import Product from "../models/product.model.js"
 
 export const getProduct = async (req, res) => {
-  console.log("tes")
   try {
     const products = await Product.find({})//kosong artinya kita mengambil semua data yang ada pada db
     res.status(200).json({success: true, data: products})
@@ -15,7 +14,11 @@ export const getProduct = async (req, res) => {
 export const createProduct = async (req, res) => {
   const product = req.body
   
-  if(!product.name || !product.price || !product.image, !product.rating){
+  if(!product.author ||
+    !product.price ||
+    !product.image ||
+    !product.title ||
+    !product.ISBN){
     return res.status(403).json({success: false, message: "tolong masukan data dengan benar"})
   }
   

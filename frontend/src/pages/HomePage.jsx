@@ -5,8 +5,10 @@ import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import {
 	Container,
-	Box
+	Box,
+	Typography
 } from '@mui/material'
+import {FaInstagram, FaYoutube} from 'react-icons/fa'
 
 //kalau bisa ganti library untuk mmebuat carousel
 
@@ -65,13 +67,6 @@ export default function HomePage() {
 				sx={{
 					my: 1
 				}}>
-				<ProductList header="Best Seller" />
-			</Box>
-
-			<Box
-				sx={{
-					my: 1
-				}}>
 				<ProductList header="Baru Terbit" />
 			</Box>
 
@@ -80,6 +75,45 @@ export default function HomePage() {
 					my: 1
 				}}>
 				<ProductList header="Komik dan Manga" />
+			</Box>
+
+			<Box
+				component="footer"
+				sx={{
+					textAlign: 'center',
+					p: 1,
+					bgcolor: '#213555',
+					color: '#fff'
+				}}>
+				<Typography variant="h6">Contact us</Typography>
+				<Box
+					sx={{
+						display: 'flex',
+						justifyContent: 'center'
+					}}>
+					<Box
+						sx={{
+							width: '45%',
+							textAlign: 'center',
+							display: 'flex',
+							alignItems: 'center',
+							justifyContent: 'center'
+						}}>
+						<FaInstagram className="footer-icon" />
+						@Al-Hidayah
+					</Box>
+					<Box
+						sx={{
+							width: '45%',
+							textAlign: 'center',
+							display: 'flex',
+							alignItems: 'center',
+							justifyContent: 'center'
+						}}>
+						<FaYoutube className="footer-icon" />
+						@Al-Hidayah
+					</Box>
+				</Box>
 			</Box>
 		</Container>
 	</>
