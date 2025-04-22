@@ -20,7 +20,8 @@ const skemaBarang = new mongoose.Schema({
   price: {
     type: Number,
     required: true
-  }
+  },
+  tags: Array
 }, {
   timestamps: true //jika true, maka saaat memasukan data kedalam db akan ada satu data tambahan yaitu data tanggal
 })

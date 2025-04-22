@@ -52,12 +52,15 @@ export default function HomePage() {
 						height: 320,
 					}}>
 						<Slider {...settings}>
-			        {imgUrl.map((url, i) => (
-					      <div>
-					      	<img src={url} className="slide" />
-					      </div>
-			        	)
-			        )}
+					    <div>
+					    	<img src={imgUrl[0]} className="slide" />
+					    </div>
+					    <div>
+					    	<img src={imgUrl[1]} className="slide" />
+					    </div>
+					    <div>
+					    	<img src={imgUrl[2]} className="slide" />
+					    </div>
 		        </Slider>
 					</Box>
 				</Box>
@@ -67,14 +70,21 @@ export default function HomePage() {
 				sx={{
 					my: 1
 				}}>
-				<ProductList header="Baru Terbit" />
+				<ProductList header="Baru Terbit" tag="baru"/>
 			</Box>
 
 			<Box
 				sx={{
 					my: 1
 				}}>
-				<ProductList header="Komik dan Manga" />
+				<ProductList header="Komik dan Manga" tag="komik"/>
+			</Box>
+
+			<Box
+				sx={{
+					my: 1
+				}}>
+				<ProductList header="Majalah" tag="majalah"/>
 			</Box>
 
 			<Box

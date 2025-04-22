@@ -11,13 +11,9 @@ import {
 import {useEffect} from 'react'
 import {useSelector, useDispatch} from 'react-redux'
 
-export default function ProductList ({header}) {
+export default function ProductList ({header, tag}) {
 	const books = useSelector((state) => state.books.value)
-
-	useEffect(() => {
-	  
-	}, [])
-
+	console.log('p')
   return (
    <Container
    	component="section"
@@ -32,35 +28,40 @@ export default function ProductList ({header}) {
    		py: 1,
    		overflowX: 'scroll'
    	}}>
-	   	{books.map((book, i) => (
-	   	<Card
-	   		variant="outlined"
-	   		key={i}
-	   		sx={{
-	   			mx: 2,
-	   			border: '1px solid gray',
-	   			// flexGrow: 0,
-	   			// flexShrink: 0,
-	   			// flexBasis: 150
-	   			flex: '0 0 150px' //ini shothandnya
-	   		}}>
-	   		<CardMedia image={book.image} sx={{height: 80, width: '100%'}} />
-	   		<CardContent sx={{p: .5, textAlign: 'left'}}>
-	   			<Typography>{book.title}</Typography>
-	   			<Typography variant="p">Author: {book.author}</Typography><br />
-	   			<Typography variant="p">Harga: {book.price}</Typography>
-	   		</CardContent>
-	   		<CardActions>
-	   			<Button
-	   				variant="outlined"
-	   				size="small"
-	   				sx={{
-	   					border: '1px solid skyblue',
-	   					color: 'skyblue'
-	   				}}>Beli</Button>
-	   		</CardActions>
-	   	</Card>
-	   	))}
+   		{books.map((book, i) => {
+   			if(book.tags.some(el => el === tag)){
+   				return (
+			   		<Card
+				   		variant="outlined"
+				   		key={i}
+				   		sx={{
+				   			mx: 2,
+				   			border: '1px solid gray',
+				   			// flexGrow: 0,
+				   			// flexShrink: 0,
+				   			// flexBasis: 150
+				   			flex: '0 0 150px' //ini shothandnya
+				   		}}>
+				   		<CardMedia image={book.image} sx={{height: 80, width: '100%'}} />
+				   		<CardContent sx={{p: .5, textAlign: 'left'}}>
+				   			<Typography>{book.title}</Typography>
+				   			<Typography variant="p">Author: {book.author}</Typography><br />
+				   			<Typography variant="p">Harga: {book.price}</Typography>
+				   			<Typography variant="p">tags: {book.tags}</Typography>
+				   		</CardContent>
+				   		<CardActions>
+				   			<Button
+				   				variant="outlined"
+				   				size="small"
+				   				sx={{
+				   					border: '1px solid skyblue',
+				   					color: 'skyblue'
+				   				}}>Beli</Button>
+				   		</CardActions>
+				   	</Card>
+   				)
+   			}
+   		})}
    	</Box>
    </Container>
   )

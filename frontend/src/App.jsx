@@ -12,9 +12,9 @@ function App() {
 	const dispatch = useDispatch()
 
 	useEffect(() => {
-		axios.get('http://localhost:3000/books')
+		axios.get('http://localhost:3000/api/product')
 		.then((res) => {
-			dispatch(setInitial(res.data))
+			dispatch(setInitial(res.data.data))
 			console.log(res)
 		})
 		.catch((e) => {
