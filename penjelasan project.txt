@@ -2,6 +2,7 @@ membuat aplikasi toko
 fitur:
 - membeli barang
 - menambah barang
+- membuat fitur log in dab account
 - intinya iki tok
 
 /*jika sudah lumayan menguasai BE dan FE maka pakai project ini
