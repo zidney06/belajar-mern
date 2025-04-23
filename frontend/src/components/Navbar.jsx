@@ -5,42 +5,54 @@ import {
 	createTheme,
 	Button,
 	Grid,
-	Typography
+	Typography,
+	Collapse
 } from '@mui/material'
 import {Link} from 'react-router-dom'
+import {useState} from 'react'
 import {CiSearch} from 'react-icons/ci'
 import {GiHamburgerMenu} from 'react-icons/gi'
 
 export default function Navbar() {
-	
+	const [cheked, setCheked] = useState(false)
+
 	return (
-	<Container component="nav" disableGutters maxWidth="xl" sx={{
-		display: 'flex',
-		justifyContent: 'space-between',
-		bgcolor: '#213555',
-		color: '#fff',
-		m: 0,
-		width: '100%'
-	}}>
-		<Box component="section" 
-			sx={{
-				mr: 2,
-				display: 'flex',
-				alignItems: 'center'
-			}}>
-			<Button
-				variant="text"
-				fullWidth
-				color="text.primary"
+	<Container
+		component="nav"
+		disableGutters
+		maxWidth="xl"
+		sx={{
+			bgcolor: '#213555',
+			color: '#fff',
+			width: '100%'
+		}}>
+		<Box
+		 sx={{
+		 	display: 'flex',
+			bgcolor: '#213555',
+			color: '#fff',
+			m: 0,
+			width: '100%'
+		 }}>
+			<Box component="section" 
 				sx={{
-					fontSize: 25,
-					height: '60%',
-					color: '#fff'
+					display: 'flex',
+					alignItems: 'center',
+					width: '15vw'
 				}}>
-				<GiHamburgerMenu />
-			</Button>
-		</Box>
-		<Box>
+				<Button
+					variant="text"
+					fullWidth
+					color="text.primary"
+					onClick={() => cheked ? setCheked(false): setCheked(true)}
+					sx={{
+						fontSize: 25,
+						height: '60%',
+						color: '#fff'
+					}}>
+					<GiHamburgerMenu />
+				</Button>
+			</Box>
 			<Box
 				component="section"
 				sx={{
@@ -107,9 +119,16 @@ export default function Navbar() {
 					</Grid>
 				</Grid>
 			</Box>
-			<Link to="/create">create page</Link>
-			<Link to="/">home page</Link>
 		</Box>
+		<Collapse in={cheked} sx={{
+			position: 'absolute',
+			width: '100%',
+			bgcolor: '#213555',
+			zIndex: 1
+		}}>
+			<Link className="link" to="/">home page</Link>
+			<Link className="link" to="/create">create page</Link>
+		</Collapse>
 	</Container>
 	)
 }

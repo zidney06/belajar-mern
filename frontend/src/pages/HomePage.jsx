@@ -1,3 +1,4 @@
+import Navbar from '../components/Navbar'
 import {useState} from 'react'
 import Slider from 'react-slick';
 import ProductList from '../components/ProductList'
@@ -13,11 +14,6 @@ import {FaInstagram, FaYoutube} from 'react-icons/fa'
 //kalau bisa ganti library untuk mmebuat carousel
 
 export default function HomePage() {
-	const [imgUrl, setImageUrl] = useState([
-		"https://images.unsplash.com/photo-1517770413964-df8ca61194a6?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-		"https://media.istockphoto.com/id/1180068638/photo/open-book-on-autumn-grass-and-fallen-leaves.webp?a=1&s=612x612&w=0&k=20&c=nXxQurwM2YNEWkRU2fwq0H0WZJRusdnyEpnpI0Poxd4=",
-		"https://images.unsplash.com/photo-1476275466078-4007374efbbe?q=80&w=829&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-	])
 
 	const settings = {
     dots: true,
@@ -30,11 +26,10 @@ export default function HomePage() {
   }
 
 	return (
-	<>
 		<Container
-			className="tes"
 			disableGutters
 			maxWidth="xl">
+			<Navbar />
 			<Box
 				sx={{
 					p: 1.5
@@ -49,17 +44,17 @@ export default function HomePage() {
 					sx={{
 						borderRadius: 5,
 						overflow: 'hidden',
-						height: 320,
+						height: 320
 					}}>
 						<Slider {...settings}>
 					    <div>
-					    	<img src={imgUrl[0]} className="slide" />
+					    	<img src="https://images.unsplash.com/photo-1517770413964-df8ca61194a6?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" className="slide" />
 					    </div>
 					    <div>
-					    	<img src={imgUrl[1]} className="slide" />
+					    	<img src="https://media.istockphoto.com/id/1180068638/photo/open-book-on-autumn-grass-and-fallen-leaves.webp?a=1&s=612x612&w=0&k=20&c=nXxQurwM2YNEWkRU2fwq0H0WZJRusdnyEpnpI0Poxd4=" className="slide" />
 					    </div>
 					    <div>
-					    	<img src={imgUrl[2]} className="slide" />
+					    	<img src="https://images.unsplash.com/photo-1476275466078-4007374efbbe?q=80&w=829&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" className="slide" />
 					    </div>
 		        </Slider>
 					</Box>
@@ -126,6 +121,5 @@ export default function HomePage() {
 				</Box>
 			</Box>
 		</Container>
-	</>
 	)
 }
