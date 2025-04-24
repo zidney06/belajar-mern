@@ -12,7 +12,7 @@ import {useEffect} from 'react'
 import {useSelector, useDispatch} from 'react-redux'
 
 export default function ProductList ({header, tag}) {
-	const books = useSelector((state) => state.books.value)
+	const books = useSelector((state) => state.products.value)
 	
 	const filteredBooks = books.filter(book => book.tags.some(el => el === tag))
 

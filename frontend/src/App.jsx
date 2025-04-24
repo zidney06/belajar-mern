@@ -11,10 +11,10 @@ function App() {
 	const dispatch = useDispatch()
 
 	useEffect(() => {
-		axios.get('http://localhost:3000/api/product')
+		axios.get('http://localhost:3000/products')
 		.then((res) => {
-			dispatch(setInitial(res.data.data))
-			console.log(res)
+			dispatch(setInitial(res.data))
+			console.log(res.data)
 		})
 		.catch((e) => {
 			console.log(e)
