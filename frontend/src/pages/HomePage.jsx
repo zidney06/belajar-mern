@@ -22,7 +22,7 @@ export default function HomePage() {
   }
 
 	return (
-		<div className="container-fluid red">
+		<div className="container-fluid p-0">
 			<div className="w-75 mx-auto tes my-5">
 				<Slider {...settings}>
 	 				<div className="slide">
@@ -36,9 +36,25 @@ export default function HomePage() {
 	 		    </div>
 	      </Slider>
 			</div>
-			<div>
-				
-			</div>
+			<main className="px-2">
+				<ProductList header="Komik" tag="komik" />
+				<ProductList header="Majalah" tag="majalah" />
+				<ProductList header="Baru terbit" tag="baru" />	
+			</main>
+			<footer className="bg-primary container-fluid text-light row p-3">
+				<div className="col text-center mb-0">
+					<h3 className="mb-0">
+						<FaInstagram />
+						@Toko Al-Hidayah
+					</h3>
+				</div>
+				<div className="col text-center">
+					<h3 className="mb-0">
+						<FaYoutube />
+						@Toko Al-Hidayah
+					</h3>
+				</div>
+			</footer>
 		</div>	
 	)
 }

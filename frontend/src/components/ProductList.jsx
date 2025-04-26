@@ -1,13 +1,5 @@
-import {
-	Container,
-	Box,
-	Typography,
-	Card,
-	CardActions,
-	CardContent,
-	CardMedia,
-	Button
-} from '@mui/material'
+import 'bootstrap/dist/css/bootstrap.min.css'
+import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import {useEffect} from 'react'
 import {useSelector, useDispatch} from 'react-redux'
 
@@ -17,50 +9,19 @@ export default function ProductList ({header, tag}) {
 	const filteredBooks = books.filter(book => book.tags.some(el => el === tag))
 
   return (
-   <Container
-   	component="section"
-   	disableGutters
-   	sx={{
-   		px: 1,
-   	}}>
-   	<Typography variant="h6">{header}</Typography>
-   	<Box
-   	sx={{
-   		display: 'flex',
-   		py: 1,
-   		overflowX: 'scroll'
-   	}}>
-   		{filteredBooks.map((book, i) => (
-   			<Card
-					variant="outlined"
-		   		key={i}
-		   		sx={{
-		   			mx: 2,
-		   			border: '1px solid gray',
-		   			// flexGrow: 0,
-		   			// flexShrink: 0,
-		   			// flexBasis: 150
-		   			flex: '0 0 150px' //ini shothandnya
-		   		}}>
-		   		<CardMedia image={book.image} sx={{height: 80, width: '100%'}} />
-		   		<CardContent sx={{p: .5, textAlign: 'left'}}>
-		   			<Typography>{book.title}</Typography>
-		   			<Typography variant="p">Author: {book.author}</Typography><br />
-			   			<Typography variant="p">Harga: {book.price}</Typography>
-		   			<Typography variant="p">tags: {book.tags}</Typography>
-		   		</CardContent>
-		   		<CardActions>
-		   			<Button
-		   				variant="outlined"
-		   				size="small"
-		   				sx={{
-		   					border: '1px solid skyblue',
-		   					color: 'skyblue'
-		   				}}>Beli</Button>
-		   		</CardActions>
-		   	</Card>
-   		))}
-   	</Box>
-   </Container>
+  <div className="my-3 border rounded p-1">
+		<h4>{header}</h4>
+		<div className="container-fluid d-flex overflow-auto p-2">
+		{filteredBooks.map((book, i) => (
+			<div className="card dev-card mx-1" key={i}>
+			  <img src={book.image} className="card-img-top" alt="..." />
+			  <div className="card-body p-1">
+			    <h5 className="card-title">{book.title}</h5>
+			    <p>{book.tags}</p>
+			  </div>
+			</div>	
+		))}
+		</div>
+	</div>
   )
 }

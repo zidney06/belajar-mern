@@ -8,8 +8,6 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 export default function Navbar() {
 	const [cheked, setCheked] = useState(false)
 
-	console.log('p')
-
 	return (
 	<div className="container-fluid px-0 bg-primary text-light row mx-0">
 		<button className="btn text-light col" data-bs-toggle="collapse" href="#tes">
