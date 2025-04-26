@@ -6,6 +6,7 @@ import {useEffect, useState} from 'react'
 import axios from 'axios'
 import {setInitial} from '../slices/productSlice'
 import {useDispatch} from 'react-redux'
+import Navbar from './components/Navbar';
 
 function App() {
 	const dispatch = useDispatch()
@@ -21,8 +22,11 @@ function App() {
 		})
 	}, [])
 
+	console.log('app')
+
   return (
     <>
+    	<Navbar />
 			<Routes>
 				<Route path="/" element={<HomePage />} />
 				<Route path="/create" element={<CreatePage />} />
