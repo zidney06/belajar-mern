@@ -39,8 +39,9 @@ export default function HomePage() {
 			<main className="px-2">
 				<ProductList header="Komik" tag="komik" />
 				<ProductList header="Majalah" tag="majalah" />
-				<ProductList header="Baru terbit" tag="baru" />	
+				<ProductList />	
 			</main>
+
 			<footer className="bg-primary container-fluid text-light row p-3">
 				<div className="col text-center mb-0">
 					<h3 className="mb-0">

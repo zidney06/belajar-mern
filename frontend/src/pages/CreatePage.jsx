@@ -2,8 +2,8 @@ import {useState, useCallback, useRef} from 'react'
 import {useSelector, useDispatch} from 'react-redux'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
-import {addProduct} from '../../slices/productSlice'
-
+import {addProduct, delProduct, editProduct} from '../../slices/productSlice'
+import axios from 'axios'
 
 export default function CreatePage() {
 	const dispatch = useDispatch()
@@ -14,8 +14,41 @@ export default function CreatePage() {
 	const ISBN = useRef('')
 	const image = useRef('')
 	const [tags, setTags] = useState([])
+	const [isEdit, setIsEdit] = useState(false)
+	const [id, setId] = useState(null)
 
 	const hndlConfirm = () => {
+		if(isEdit){
+			console.log(image.current.value)
+			dispatch(editProduct({
+				id: id,
+				title: title.current.value,
+				author: author.current.value,
+				price: price.current.value,
+				ISBN: ISBN.current.value,
+				image: image.current.value,
+				tags: tags
+			}))
+
+			axios.put(`http://localhost:3000/api/product/${id}`, {
+				title: title.current.value,
+				author: author.current.value,
+				price: price.current.value,
+				ISBN: ISBN.current.value,
+				image: image.current.value,
+				tags: tags
+			})
+				.then(res => {
+					console.log(res.data)
+				})
+				.catch(err => {
+					console.error(err)
+				})
+
+			setIsEdit(false)
+			resetValue()
+			return
+		}
 		dispatch(addProduct({
 			title: title.current.value,
 			author: author.current.value,
@@ -25,9 +58,24 @@ export default function CreatePage() {
 			tags: tags
 		}))
 
+		axios.post('http://localhost:3000/api/product', {
+			title: title.current.value,
+			author: author.current.value,
+			price: price.current.value,
+			ISBN: ISBN.current.value,
+			image: image.current.value,
+			tags: tags
+		})
+			.then(res => {
+				console.log(res.data)
+			})
+			.catch(err => {
+				console.error(err)
+			})
+
 		resetValue()
 	}
-	const hndlChange = (e) => {
+	const hndlChangeTag = (e) => {
 		const {value, checked} = e.target
 
 		if(checked){
@@ -36,6 +84,23 @@ export default function CreatePage() {
 		else {
 			setTags(prev => prev.filter(item => item !== value))
 		}
+	}
+	const hndlEdit = (product) => {
+		title.current.value = product.title
+		author.current.value = product.author
+		price.current.value = product.price
+		ISBN.current.value = product.ISBN
+		image.current.value = product.image
+		setTags(product.tags)
+		setIsEdit(true)
+		setId(product._id)
+	}
+	const hndlDelete = (index, id) => {
+		dispatch(delProduct({index: index}))
+
+		axios.delete(`http://localhost:3000/api/product/${id}`)
+
+		console.log("hapus", id)
 	}
 	const resetValue = () => {
 		title.current.value = ""
@@ -46,7 +111,7 @@ export default function CreatePage() {
 		setTags([])
 	}
 
-	// console.log(products)
+	console.log(products)
 
 	return (
 	<div className="container-fluid p-0 my-5">
@@ -75,13 +140,13 @@ export default function CreatePage() {
 			</div>
 			<p className="text-center">Pilih tipe buku</p>
 			<div className="form-check">
-  			<input className="form-check-input" type="checkbox" value="komik" id="komik" checked={tags.includes("komik")} onChange={hndlChange} />
+  			<input className="form-check-input" type="checkbox" value="komik" id="komik" checked={tags.includes("komik")} onChange={hndlChangeTag} />
   			<label className="form-check-label" htmlFor="komik">
     			Komik
   			</label>
 			</div>
 			<div className="form-check">
-  			<input className="form-check-input" type="checkbox" value="majalah" id="majalah" checked={tags.includes("majalah")} onChange={hndlChange} />
+  			<input className="form-check-input" type="checkbox" value="majalah" id="majalah" checked={tags.includes("majalah")} onChange={hndlChangeTag} />
   			<label className="form-check-label" htmlFor="majalah">
     			Majalah
   			</label>
@@ -94,12 +159,16 @@ export default function CreatePage() {
 		<div className="my-3 border rounded p-1">
 			<h4>Daftar Buku Tersedia</h4>
 			<div className="container-fluid d-flex overflow-auto p-2">
-			{products.map((book, i) => (
+			{products.map((product, i) => (
 				<div className="card dev-card mx-1" key={i}>
-				  <img src={book.image} className="card-img-top" alt="..." />
+				  <img src={product.image} className="card-img-top" alt="..." />
 				  <div className="card-body p-1">
-				    <h5 className="card-title">{book.title}</h5>
-				    <p>{book.tags}</p>
+				    <h5 className="card-title">{product.title}</h5>
+				    <p>tags: {product.id}</p>
+				    <div className="d-flex justify-content-between">
+				    	<button className="btn btn-outline-danger" onClick={() => hndlDelete(i, product._id)}>Hapus</button>
+				    	<button className="btn btn-outline-primary" onClick={() => hndlEdit(product)}>Edit</button>
+				    </div>
 				  </div>
 				</div>	
 			))}

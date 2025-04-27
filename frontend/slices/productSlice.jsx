@@ -11,13 +11,38 @@ const productSlice = createSlice({
 		},
 		addProduct: (state, action) => {
 			state.value.push(action.payload)
+		},
+		delProduct: (state, action) => {
+			state.value = state.value.filter((item, i) => {
+				if(i === action.payload.index){
+					return
+				}
+				return item
+			})
+		},
+		editProduct: (state, action) => {
+			state.value = state.value.map((product, i) => {
+				if(product._id === action.payload.id){
+					return {...product, 
+						title: action.payload.title,
+						author: action.payload.author,
+						price: action.payload.price,
+						ISBN: action.payload.ISBN,
+						image: action.payload.image,
+						tags: action.payload.tags,
+					}
+				}
+				return product
+			})
 		}
 	}
 })
 
 export const {
 	setInitial,
-	addProduct
+	addProduct,
+	delProduct,
+	editProduct
 } = productSlice.actions
 
 export default productSlice.reducer
