@@ -16,7 +16,12 @@ const newProductSlice = createSlice({
 	},
 	reducers: {
 		setValue: (state, action) => {
-			state.value.title = action.payload
+			state.value.title = action.payload.title
+			state.value.author = action.payload.author
+			state.value.price = action.payload.price
+			state.value.ISBN = action.payload.ISBN
+			state.value.image = action.payload.image
+			state.value.tags = action.payload.tags
 		}
 	}
 })
