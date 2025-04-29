@@ -1,31 +1,39 @@
 import express from 'express'
 import mongoose from 'mongoose'
+import bcrypt from 'bcryptjs'
 import User from '../models/userModel.js'
 
 const router = express.Router()
 
+
 router.post('/register', async (req, res) => {
-  const {username, email, password} = req.body
+  const user = req.body
+  const salt = await bcrypt.genSalt(10)
 
-  console.log(username, email, password)
+  console.log(user.username, user.email, user.password)
 
-  if(!username, !email, !password){
+  if(!user.username, !user.email, !user.password){
     return res.status(403).json({ message: "lengkapi datanya dulu!" })
   }
 
+  user.password = await bcrypt.hash(user.password, salt)
+
   const newUser = new User({
-    username: username,
-    email: email,
-    password: password
+    username: user.username,
+    email: user.email,
+    password: user.password
   })
 
   try {
     // simpan data user baru ke DB
     await newUser.save()
+
+    console.log(newUser)
+
     res.status(201).json({success: true, data : {
-      username: username,
-      email: email,
-      password: password
+      username: user.username,
+      email: user.email,
+      password: user.password
     }})
   } catch (err) {
     console.error(err.message)
@@ -44,8 +52,10 @@ router.post('/login', async (req, res) => {
       return res.status(404).json({message: `User dengan email ${user.email} tidak ditemukan`})
     }
 
+    const isMatch = await bcrypt.compare(user.password, userInDB.password)
+
     // cek apakah password benar atau tidak
-    if(user.password === userInDB.password){
+    if(isMatch){
       return res.status(200).json({message: "user ditemukan dan berhasil login"})
     } else {
       return res.status(401).json({message: "password salah"})
