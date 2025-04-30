@@ -1,6 +1,8 @@
 import express from "express"
 import dotenv from 'dotenv'
 import cors from 'cors'
+import bodyParser from 'body-parser'
+import session from 'express-session'
 import {connectDB} from './config/db.js'
 import Product from './models/product.model.js'
 import productRoutes from './routes/productRoutes.js'
@@ -24,6 +26,16 @@ app.get('/spesial', cors({origin: 'url', optionSucessStatus: 200}), (req, res) =
 })
 */
 app.use(express.json())
+app.use(bodyParser.urlencoded({extended: true}))
+app.use(session({
+	secret: process.env.SESSION_SECRET,
+	resave: false,// jika true session disimpan ke penyimpanan pada setiap request walaupun tidak dimodifikasi
+	saveUninitialized: false,
+	// secara default session akan tetap ada hingga server disertart
+	// jika ingin memberikan expired pada session maka pakai ini
+	cookie: {maxAge: 1000 * 60 * 60} // dengan ini session akan expired dala, satu jam (ini pakai milisecond)
+}))
+
 app.use('/api/product' , productRoutes)
 app.use('/api/user' , userRoutes)
 

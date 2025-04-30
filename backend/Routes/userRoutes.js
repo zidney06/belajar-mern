@@ -28,8 +28,6 @@ router.post('/register', async (req, res) => {
     // simpan data user baru ke DB
     await newUser.save()
 
-    console.log(newUser)
-
     res.status(201).json({success: true, data : {
       username: user.username,
       email: user.email,
@@ -56,6 +54,9 @@ router.post('/login', async (req, res) => {
 
     // cek apakah password benar atau tidak
     if(isMatch){
+      // membuat id session
+      req.session.userId = userInDB._id // berarti yang disimpan itu ini
+      console.log(req.session)
       return res.status(200).json({message: "user ditemukan dan berhasil login"})
     } else {
       return res.status(401).json({message: "password salah"})
@@ -63,20 +64,30 @@ router.post('/login', async (req, res) => {
 
   } catch (err) {
     console.error(err.message)
-    res.status(500).json({success: false, messsage: "internal server error"})
+    res.status(500).json({success: false, message: "internal server error"})
   }
 })
-
-// router.post('/', async (req, res) => {
-
-// })
-
-// router.put('/:id', async (req, res) => {
-
-// })
-
-// router.delete('/:id', async (req, res) => {
-
-// })
+router.post('/logout', (req, res) => {
+  req.session.destroy(err => {
+    if(err){
+      return res.status(500).json({message: "gagal logout"})
+    }
+    res.json({message: "berhasil logout"})
+  })
+})
+router.get('/account', (req, res) => {
+  if(req.session.userId){
+    res.json({
+      message: 'hello id : ' + req.session.userId,
+      data: {
+        nama: "bakso",
+        uang: 12000000
+      }
+    })
+  }
+  else {
+    res.status(401).json({message: "login dulu wak"})
+  }
+})
 
 export default router
