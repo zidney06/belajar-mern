@@ -1,4 +1,4 @@
-import {useState, useCallback, useRef} from 'react'
+import {useState, useCallback, useRef, useEffect} from 'react'
 import {useSelector, useDispatch} from 'react-redux'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
@@ -7,7 +7,8 @@ import axios from 'axios'
 
 export default function CreatePage() {
 	const dispatch = useDispatch()
-	const products = useSelector((state) => state.products.value)
+	const [products, setProduct] = useState([])
+	const user = useSelector(state => state.user.value)
 	const title = useRef('')
 	const author = useRef('')
 	const price = useRef('')
@@ -16,6 +17,15 @@ export default function CreatePage() {
 	const [tags, setTags] = useState([])
 	const [isEdit, setIsEdit] = useState(false)
 	const [id, setId] = useState(null)
+
+	useEffect(() => {
+		// mengambil daftar produk yang dibuat oleh user bersanggkutan
+	  axios.get('http://localhost:3000/api/product/my-product', {withCredentials: true})
+	   .then(res => {
+	   	setProduct(res.data.data)
+	   })
+	   .catch(err => console.error(err))
+	}, [])
 
 	const hndlConfirm = () => {
 		if(isEdit){
@@ -27,7 +37,8 @@ export default function CreatePage() {
 				price: price.current.value,
 				ISBN: ISBN.current.value,
 				image: image.current.value,
-				tags: tags
+				tags: tags,
+				ownerId: user._id
 			}))
 
 			axios.put(`http://localhost:3000/api/product/${id}`, {
@@ -36,7 +47,8 @@ export default function CreatePage() {
 				price: price.current.value,
 				ISBN: ISBN.current.value,
 				image: image.current.value,
-				tags: tags
+				tags: tags,
+				
 			})
 				.then(res => {
 					console.log(res.data)
@@ -64,7 +76,8 @@ export default function CreatePage() {
 			price: price.current.value,
 			ISBN: ISBN.current.value,
 			image: image.current.value,
-			tags: tags
+			tags: tags,
+			ownerId: user._id
 		})
 			.then(res => {
 				console.log(res.data)
@@ -111,7 +124,9 @@ export default function CreatePage() {
 		setTags([])
 	}
 
-	console.log(products)
+	if(!user._id){
+		return <>Login dulu</>
+	}
 
 	return (
 	<div className="container-fluid p-0 my-5">

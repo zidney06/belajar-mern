@@ -21,7 +21,11 @@ const skemaBarang = new mongoose.Schema({
     type: Number,
     required: true
   },
-  tags: Array
+  tags: Array,
+  ownerId: {
+    type: String,
+    required: true
+  }
 }, {
   timestamps: true //jika true, maka saaat memasukan data kedalam db akan ada satu data tambahan yaitu data tanggal
 })

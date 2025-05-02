@@ -39,25 +39,38 @@ router.post('/register', async (req, res) => {
   }
 })
 router.post('/login', async (req, res) => {
-  const user = req.body
-
+  if(!req.body.email || !req.body.password){
+    return res.status(403).json({ message: "lengkapi datanya dulu!" })
+  }
   try {
     // cari apakah user ada di DB atau tidak
-    const userInDB = await User.findOne({email: user.email})
+    const user = await User.findOne({email: req.body.email})
 
     // kalau gak ada maka respon = 404
-    if(!userInDB){
-      return res.status(404).json({message: `User dengan email ${user.email} tidak ditemukan`})
+    if(!user){
+      return res.status(404).json({message: `User dengan email ${req.body.email} tidak ditemukan`})
     }
 
-    const isMatch = await bcrypt.compare(user.password, userInDB.password)
+    const isMatch = await bcrypt.compare(req.body.password, user.password)
 
     // cek apakah password benar atau tidak
     if(isMatch){
       // membuat id session
-      req.session.userId = userInDB._id // berarti yang disimpan itu ini
+      req.session.userId = user._id // berarti yang disimpan itu ini
+      req.session.save(err => {
+        if(err){
+          console.log('e', err)
+        }
+      })
       console.log(req.session)
-      return res.status(200).json({message: "user ditemukan dan berhasil login"})
+      return res.status(200).json({
+        message: "user ditemukan dan berhasil login",
+        data: {
+          username: user.username,
+          email: user.email,
+          _id: user._id  
+        }
+      })
     } else {
       return res.status(401).json({message: "password salah"})
     }
@@ -68,21 +81,20 @@ router.post('/login', async (req, res) => {
   }
 })
 router.post('/logout', (req, res) => {
+  console.log('logout: ', req.session)
   req.session.destroy(err => {
     if(err){
       return res.status(500).json({message: "gagal logout"})
     }
+    res.clearCookie('connect.sid')
     res.json({message: "berhasil logout"})
   })
 })
 router.get('/account', (req, res) => {
+  console.log('account: ', req.session)
   if(req.session.userId){
     res.json({
-      message: 'hello id : ' + req.session.userId,
-      data: {
-        nama: "bakso",
-        uang: 12000000
-      }
+      message: 'hello id : ' + req.session.userId
     })
   }
   else {

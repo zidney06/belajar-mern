@@ -27,6 +27,7 @@ export default function Navbar() {
 		<div className="collapse" id="tes">
 			<Link to="/" className="text-light link">Home Page</Link>
 			<Link to="/create" className="text-light link">Create Page</Link>
+			<Link to="/login" className="text-light link">Login Page</Link>
 		</div>
 	</div>
 	)

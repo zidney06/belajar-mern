@@ -1,31 +1,85 @@
-import {useState} from 'react'
+import {useState, useRef} from 'react'
+import axios from 'axios'
+import {useNavigate} from 'react-router-dom'
+import {useSelector, useDispatch} from 'react-redux'
+import {setValue} from '../../slices/userSlice'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 
 export default function LoginPage() {
-	const [isRegister, setIsRegister] = useState(true)
+	const [isRegister, setIsRegister] = useState(false)
+	const dispatch = useDispatch()
+	const navigate = useNavigate()
 
-	/*
-	setelah user berhasil login atau registrasi, data nya disimpan
-	kedalam sebuah state dan redirect ke dashboard.
+	const username = useRef('')
+	const email = useRef('')
+	const password = useRef('')
 
-	nanti akan ditambahkan fitur cookies dan session untuk mengecek
-	apakah user sudah pernah login atau belum
-	*/
+	const hndlSubmit = () => {
+		if(isRegister){
+			axios.post('http://localhost:3000/api/user/register',{
+				username: username.current.value,
+				email: email.current.value,
+				password: password.current.value
+			})
+				.then(res => {
+					console.log(res.data)
+				})
+				.catch(err => {
+					console.log(err)
+				})
+		} else {
+			axios.post('http://localhost:3000/api/user/login',{
+				email: email.current.value,
+				password: password.current.value
+			}, {withCredentials: true})
+				.then(res => {
+					console.log(res.data.data._id)
+					dispatch(setValue(res.data.data))
+					navigate('/')
+				})
+				.catch(err => {
+					console.log(err)
+				})
+		}
+	}
+	const hndlTes = () => {
+		axios.get('http://localhost:3000/api/user/account', {withCredentials: true})
+			.then(res => {
+				console.log(res)
+			})
+			.catch(err => {
+				console.log(err)
+			})
+	}
+	const hndlLogout = () => {
+		axios.post('http://localhost:3000/api/user/logout',{}, {withCredentials: true})
+			.then(res => {
+				console.log(res.data)
+			})
+			.catch(err => {
+				console.log(err)
+			})
+	}
 
   return (
   <div className="container-fluid d-flex">
-  	<div className="border border-2 border-info rounded w-75 mx-auto form text-center mt-5 p-1">
+  	<div className="border border-2 border-info rounded w-75 mx-auto form text-center my-5 p-1">
   		<h3>{isRegister ? "Registrasi" : "Login"}</h3>
-  		<label className="form-label" htmlFor="username">username</label>
-  		<input type="text" id="username" className="form-control form-control-sm" autoComplete="off" />
+  		{isRegister && (
+  		<>
+	  		<label className="form-label" htmlFor="username">username</label>
+	  		<input type="text" id="username" ref={username} className="form-control form-control-sm" autoComplete="off" />
+  		</>
+  		)}
   		<label className="form-label" htmlFor="email">email</label>
-  		<input type="email" id="email" className="form-control form-control-sm" autoComplete="off" />
+  		<input type="email" id="email" ref={email} className="form-control form-control-sm" />
   		<label className="form-label" htmlFor="password">password</label>
-  		<input type="password" id="password" className="form-control form-control-sm" autoComplete="off" />
+  		<input type="password" id="password" ref={password} className="form-control form-control-sm" />
   		<div className="d-flex justify-content-between px-3 my-1">
   			<button className="btn btn-outline-warning" onClick={() => setIsRegister(!isRegister)}>{isRegister ? "Login" : "Register"}</button>
-  			<button className="btn btn-outline-info">Submit</button>
+  			<button className="btn btn-outline-info" onClick={hndlSubmit}>{isRegister ? "Submit" : "Login"}</button>
+  			<button className="btn btn-outline-info" onClick={hndlLogout}>Logout</button>
   		</div>
   	</div>
   </div>
