@@ -28,11 +28,14 @@ router.post('/register', async (req, res) => {
     // simpan data user baru ke DB
     await newUser.save()
 
-    res.status(201).json({success: true, data : {
-      username: user.username,
-      email: user.email,
-      password: user.password
-    }})
+    res.status(201).json({
+      success: true,
+      message: "berhasil registrasi",
+      data : {
+        username: user.username,
+        email: user.email,
+        password: user.password
+      }})
   } catch (err) {
     console.error(err.message)
     res.status(500).json({success: false, messsage: "internal server error"})

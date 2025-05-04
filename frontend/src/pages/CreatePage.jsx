@@ -1,5 +1,6 @@
 import {useState, useCallback, useRef, useEffect} from 'react'
 import {useSelector, useDispatch} from 'react-redux'
+import {Link} from 'react-router-dom'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import {addProduct, delProduct, editProduct} from '../../slices/productSlice'
@@ -7,8 +8,9 @@ import axios from 'axios'
 
 export default function CreatePage() {
 	const dispatch = useDispatch()
-	const [products, setProduct] = useState([])
+	const [products, setProducts] = useState([])
 	const user = useSelector(state => state.user.value)
+	// const [user, setUser] = useState(null)
 	const title = useRef('')
 	const author = useRef('')
 	const price = useRef('')
@@ -22,14 +24,23 @@ export default function CreatePage() {
 		// mengambil daftar produk yang dibuat oleh user bersanggkutan
 	  axios.get('http://localhost:3000/api/product/my-product', {withCredentials: true})
 	   .then(res => {
-	   	setProduct(res.data.data)
+	   	setProducts(res.data.data)
 	   })
 	   .catch(err => console.error(err))
 	}, [])
 
 	const hndlConfirm = () => {
 		if(isEdit){
-			console.log(image.current.value)
+			console.log({
+				id: id,
+				title: title.current.value,
+				author: author.current.value,
+				price: price.current.value,
+				ISBN: ISBN.current.value,
+				image: image.current.value,
+				tags: tags,
+				ownerId: user._id
+			})
 			dispatch(editProduct({
 				id: id,
 				title: title.current.value,
@@ -59,34 +70,43 @@ export default function CreatePage() {
 
 			setIsEdit(false)
 			resetValue()
-			return
+		} else {
+			// mengubah global state untuk products
+			dispatch(addProduct({
+				title: title.current.value,
+				author: author.current.value,
+				price: price.current.value,
+				ISBN: ISBN.current.value,
+				image: image.current.value,
+				tags: tags
+			}))
+			setProducts([...products, {
+				title: title.current.value,
+				author: author.current.value,
+				price: price.current.value,
+				ISBN: ISBN.current.value,
+				image: image.current.value,
+				tags: tags
+			}])
+
+			axios.post('http://localhost:3000/api/product', {
+				title: title.current.value,
+				author: author.current.value,
+				price: price.current.value,
+				ISBN: ISBN.current.value,
+				image: image.current.value,
+				tags: tags,
+				ownerId: user._id
+			})
+				.then(res => {
+					console.log(res.data)
+				})
+				.catch(err => {
+					console.error(err)
+				})
+
+			resetValue()
 		}
-		dispatch(addProduct({
-			title: title.current.value,
-			author: author.current.value,
-			price: price.current.value,
-			ISBN: ISBN.current.value,
-			image: image.current.value,
-			tags: tags
-		}))
-
-		axios.post('http://localhost:3000/api/product', {
-			title: title.current.value,
-			author: author.current.value,
-			price: price.current.value,
-			ISBN: ISBN.current.value,
-			image: image.current.value,
-			tags: tags,
-			ownerId: user._id
-		})
-			.then(res => {
-				console.log(res.data)
-			})
-			.catch(err => {
-				console.error(err)
-			})
-
-		resetValue()
 	}
 	const hndlChangeTag = (e) => {
 		const {value, checked} = e.target
@@ -122,16 +142,25 @@ export default function CreatePage() {
 		ISBN.current.value = ""
 		image.current.value = ""
 		setTags([])
+		setIsEdit(false)
 	}
 
-	if(!user._id){
-		return <>Login dulu</>
+	console.log(isEdit)
+	
+	if(products.length === 0 || !user._id){
+		return (
+		<div className="container-fluid p-0 my-5 d-flex justify-content-center align-items-center">
+			<div className="w-75 border border-2 border-info rounded">
+				<h1 className="text-center">Harap Login Terlebih Dahulu</h1>
+				<Link to="/login" className="btn btn-outline-primary mx-auto d-block w-25">Login</Link>
+			</div>
+		</div>)
 	}
 
 	return (
 	<div className="container-fluid p-0 my-5">
 		<div className="dev-input-box mx-auto border border-info rounded border-2 px-2">
-			<h1 className="text-center">Input Data</h1>
+			<h1 className="text-center">{isEdit ? "Edit Data" : "Input Data"}</h1>
 			<div className="mb-3">
   			<label htmlFor="title" className="form-label">Title</label>
   			<input ref={title} type="text" className="form-control" id="title" placeholder="Title" autoComplete="off" />
