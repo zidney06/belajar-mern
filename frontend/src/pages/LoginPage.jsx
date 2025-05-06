@@ -7,7 +7,7 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 
 export default function LoginPage() {
-	const user = useSelector(state => state.user.value)
+	const user = useSelector(state => state.user.value.data)
 	const [isRegister, setIsRegister] = useState(false)
 	const dispatch = useDispatch()
 	const navigate = useNavigate()
@@ -35,7 +35,12 @@ export default function LoginPage() {
 				password: password.current.value
 			}, {withCredentials: true})
 				.then(res => {
-					console.log(res.data.data._id)
+					console.log(res.data)
+					// simpan token di sessionStorage
+					const token = res.data.token
+
+					sessionStorage.setItem('token', token)
+
 					dispatch(setValue(res.data.data))
 					navigate('/')
 				})
@@ -55,7 +60,7 @@ export default function LoginPage() {
 		dispatch(delValue())
 	}
 
-	
+	console.log(user)
 
   return (
   <div className="container-fluid d-flex auth-box">

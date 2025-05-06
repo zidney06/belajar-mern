@@ -1,16 +1,15 @@
 import {useState, useCallback, useRef, useEffect} from 'react'
 import {useSelector, useDispatch} from 'react-redux'
 import {Link} from 'react-router-dom'
+import axios from 'axios'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import {addProduct, delProduct, editProduct} from '../../slices/productSlice'
-import axios from 'axios'
+import {setProducts} from '../../slices/userSlice'
 
 export default function CreatePage() {
 	const dispatch = useDispatch()
-	const [products, setProducts] = useState([])
-	const user = useSelector(state => state.user.value)
-	// const [user, setUser] = useState(null)
+	const {data, products} = useSelector(state => state.user.value)
 	const title = useRef('')
 	const author = useRef('')
 	const price = useRef('')
@@ -22,11 +21,17 @@ export default function CreatePage() {
 
 	useEffect(() => {
 		// mengambil daftar produk yang dibuat oleh user bersanggkutan
-	  axios.get('http://localhost:3000/api/product/my-product', {withCredentials: true})
-	   .then(res => {
-	   	setProducts(res.data.data)
-	   })
-	   .catch(err => console.error(err))
+		const token = sessionStorage.getItem('token')
+	  axios.get('http://localhost:3000/api/product/my-product', {
+	  	headers: {
+	  		Authorization: `Bearer ${token}`
+	  	},
+	  	withCredentials: true
+	  })
+	  .then(res => {
+	   	dispatch(setProducts(res.data.data))
+	  })
+	  .catch(err => console.error(err))
 	}, [])
 
 	const hndlConfirm = () => {
@@ -39,7 +44,7 @@ export default function CreatePage() {
 				ISBN: ISBN.current.value,
 				image: image.current.value,
 				tags: tags,
-				ownerId: user._id
+				ownerId: data._id
 			})
 			dispatch(editProduct({
 				id: id,
@@ -49,7 +54,7 @@ export default function CreatePage() {
 				ISBN: ISBN.current.value,
 				image: image.current.value,
 				tags: tags,
-				ownerId: user._id
+				ownerId: data._id
 			}))
 
 			axios.put(`http://localhost:3000/api/product/${id}`, {
@@ -96,7 +101,7 @@ export default function CreatePage() {
 				ISBN: ISBN.current.value,
 				image: image.current.value,
 				tags: tags,
-				ownerId: user._id
+				ownerId: data._id
 			})
 				.then(res => {
 					console.log(res.data)
@@ -145,12 +150,12 @@ export default function CreatePage() {
 		setIsEdit(false)
 	}
 
-	console.log(isEdit)
+	console.log(products, data)
 	
-	if(products.length === 0 || !user._id){
+	if(products.length === 0 || !data){
 		return (
 		<div className="container-fluid p-0 my-5 d-flex justify-content-center align-items-center">
-			<div className="w-75 border border-2 border-info rounded">
+			<div className="w-75 border border-2 border-info rounded p-3">
 				<h1 className="text-center">Harap Login Terlebih Dahulu</h1>
 				<Link to="/login" className="btn btn-outline-primary mx-auto d-block w-25">Login</Link>
 			</div>

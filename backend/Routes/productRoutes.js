@@ -1,9 +1,11 @@
 import express from 'express'
 import mongoose from "mongoose"
 import Product from "../models/product.model.js"
+import {validationToken} from '../middlewares/middleware.js'
 
 const router = express.Router()
 
+// cek dulu apakah request memiliki token atau tidak
 router.get('/', async (req, res) => {
   try {
     const products = await Product.find({})//kosong artinya kita mengambil semua data yang ada pada db
@@ -14,7 +16,8 @@ router.get('/', async (req, res) => {
   }
 })
 
-router.get('/my-product', async (req, res) => {
+// protected route
+router.get('/my-product', validationToken, async (req, res) => {
   if(req.session.userId){
     const products = await Product.find({ownerId: req.session.userId})
     res.json({
