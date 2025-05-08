@@ -2,7 +2,7 @@ import {useState, useRef} from 'react'
 import axios from 'axios'
 import {useNavigate} from 'react-router-dom'
 import {useSelector, useDispatch} from 'react-redux'
-import {setValue, delValue} from '../../slices/userSlice'
+import {setUser, delUser} from '../../slices/userSlice'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 
@@ -41,11 +41,11 @@ export default function LoginPage() {
 
 					sessionStorage.setItem('token', token)
 
-					dispatch(setValue(res.data.data))
+					dispatch(setUser(res.data.data))
 					navigate('/')
 				})
 				.catch(err => {
-					alert(err.response.data.message)
+					console.log(err)
 				})
 		}
 	}
@@ -57,14 +57,14 @@ export default function LoginPage() {
 			.catch(err => {
 				console.log(err)
 			})
-		dispatch(delValue())
+		dispatch(delUser())
 	}
 
 	console.log(user)
 
   return (
-  <div className="container-fluid d-flex auth-box">
-  	<div className="border border-2 border-info rounded w-75 mx-auto form text-center my-5 p-1">
+  <div className="container-fluid d-flex dev-container">
+  	<div className="border border-2 border-info rounded w-50 mx-auto form text-center p-1 auth-box my-auto">
   		<h3>{isRegister ? "Registrasi" : "Login"}</h3>
   		{isRegister && (
   		<>
@@ -76,7 +76,7 @@ export default function LoginPage() {
   		<input type="email" id="email" ref={email} className="form-control form-control-sm" />
   		<label className="form-label" htmlFor="password">password</label>
   		<input type="password" id="password" ref={password} className="form-control form-control-sm" />
-  		<div className="d-flex justify-content-between px-3 my-1">
+  		<div className="d-flex justify-content-between px-3 my-1 my-2">
   			<button className="btn btn-outline-warning" onClick={() => setIsRegister(!isRegister)}>{isRegister ? "Login" : "Register"}</button>
   			<button className="btn btn-outline-info" onClick={hndlSubmit}>{isRegister ? "Submit" : "Login"}</button>
   			{(!isRegister && user) && (<button className="btn btn-outline-info" onClick={hndlLogout}>Logout</button>)}

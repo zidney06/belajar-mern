@@ -5,7 +5,13 @@ import axios from 'axios'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import {addProduct, delProduct, editProduct} from '../../slices/productSlice'
-import {setProducts} from '../../slices/userSlice'
+import {
+	setUser,
+	setUserProducts,
+	delUserProduct,
+	addUserProduct,
+	editUserProduct
+} from '../../slices/userSlice'
 
 export default function CreatePage() {
 	const dispatch = useDispatch()
@@ -20,6 +26,9 @@ export default function CreatePage() {
 	const [id, setId] = useState(null)
 
 	useEffect(() => {
+		if(!data){
+			return
+		}
 		// mengambil daftar produk yang dibuat oleh user bersanggkutan
 		const token = sessionStorage.getItem('token')
 	  axios.get('http://localhost:3000/api/product/my-product', {
@@ -29,9 +38,12 @@ export default function CreatePage() {
 	  	withCredentials: true
 	  })
 	  .then(res => {
-	   	dispatch(setProducts(res.data.data))
+	   	dispatch(setUserProducts(res.data.data))
 	  })
-	  .catch(err => console.error(err))
+	  .catch(err => {
+	  	console.error(err)
+	  	dispatch(setUser(null))
+	  })
 	}, [])
 
 	const hndlConfirm = () => {
@@ -56,6 +68,16 @@ export default function CreatePage() {
 				tags: tags,
 				ownerId: data._id
 			}))
+			dispatch(editUserProduct({
+				id: id,
+				title: title.current.value,
+				author: author.current.value,
+				price: price.current.value,
+				ISBN: ISBN.current.value,
+				image: image.current.value,
+				tags: tags,
+				ownerId: data._id
+			}))
 
 			axios.put(`http://localhost:3000/api/product/${id}`, {
 				title: title.current.value,
@@ -64,7 +86,7 @@ export default function CreatePage() {
 				ISBN: ISBN.current.value,
 				image: image.current.value,
 				tags: tags,
-				
+				ownerId: data._
 			})
 				.then(res => {
 					console.log(res.data)
@@ -77,22 +99,7 @@ export default function CreatePage() {
 			resetValue()
 		} else {
 			// mengubah global state untuk products
-			dispatch(addProduct({
-				title: title.current.value,
-				author: author.current.value,
-				price: price.current.value,
-				ISBN: ISBN.current.value,
-				image: image.current.value,
-				tags: tags
-			}))
-			setProducts([...products, {
-				title: title.current.value,
-				author: author.current.value,
-				price: price.current.value,
-				ISBN: ISBN.current.value,
-				image: image.current.value,
-				tags: tags
-			}])
+			
 
 			axios.post('http://localhost:3000/api/product', {
 				title: title.current.value,
@@ -104,7 +111,8 @@ export default function CreatePage() {
 				ownerId: data._id
 			})
 				.then(res => {
-					console.log(res.data)
+					dispatch(addProduct(res.data.data))
+					dispatch(addUserProduct(res.data.data))
 				})
 				.catch(err => {
 					console.error(err)
@@ -134,9 +142,16 @@ export default function CreatePage() {
 		setId(product._id)
 	}
 	const hndlDelete = (index, id) => {
-		dispatch(delProduct({index: index}))
+		
+		try {
+			axios.delete(`http://localhost:3000/api/product/${id}`)	
 
-		axios.delete(`http://localhost:3000/api/product/${id}`)
+			dispatch(delProduct({id: id}))
+			dispatch(delUserProduct({index: index}))
+		} catch (err) {
+			console.log(err)
+		}
+		
 
 		console.log("hapus", id)
 	}
@@ -149,12 +164,10 @@ export default function CreatePage() {
 		setTags([])
 		setIsEdit(false)
 	}
-
-	console.log(products, data)
 	
-	if(products.length === 0 || !data){
+	if(!data){
 		return (
-		<div className="container-fluid p-0 my-5 d-flex justify-content-center align-items-center">
+		<div className="container-fluid p-0 my-5 d-flex justify-content-center align-items-center dev-container">
 			<div className="w-75 border border-2 border-info rounded p-3">
 				<h1 className="text-center">Harap Login Terlebih Dahulu</h1>
 				<Link to="/login" className="btn btn-outline-primary mx-auto d-block w-25">Login</Link>
@@ -213,7 +226,7 @@ export default function CreatePage() {
 				  <img src={product.image} className="card-img-top" alt="..." />
 				  <div className="card-body p-1">
 				    <h5 className="card-title">{product.title}</h5>
-				    <p>tags: {product.id}</p>
+				    <p>tags: {product.tags}</p>
 				    <div className="d-flex justify-content-between">
 				    	<button className="btn btn-outline-danger" onClick={() => hndlDelete(i, product._id)}>Hapus</button>
 				    	<button className="btn btn-outline-primary" onClick={() => hndlEdit(product)}>Edit</button>

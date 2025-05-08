@@ -14,11 +14,13 @@ const productSlice = createSlice({
 		},
 		delProduct: (state, action) => {
 			state.value = state.value.filter((item, i) => {
-				if(i === action.payload.index){
-					return
+				console.log('item id:' + item._id)
+				console.log('id: ' + action.payload.id)
+				if(item._id !== action.payload.id){
+					return item
 				}
-				return item
 			})
+			
 		},
 		editProduct: (state, action) => {
 			state.value = state.value.map((product, i) => {

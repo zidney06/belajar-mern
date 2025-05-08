@@ -26,14 +26,16 @@ app.get('/spesial', cors({origin: 'url', optionSucessStatus: 200}), (req, res) =
 })
 */
 app.use(express.json())
-app.use(bodyParser.urlencoded({extended: true}))
+app.use(bodyParser.urlencoded({extended: true})) // digunakan agar dapat mengkases data yang diirimkan di body request dengan req.body
 app.use(session({
 	secret: process.env.SESSION_SECRET,
 	resave: false,// jika true session disimpan ke penyimpanan pada setiap request walaupun tidak dimodifikasi
 	saveUninitialized: false,
 	// secara default session akan tetap ada hingga server disertart
 	// jika ingin memberikan expired pada session maka pakai ini
-	cookie: {maxAge: 1000 * 60 * 60} // dengan ini session akan expired dala, satu jam (ini pakai milisecond)
+	cookie: {
+		maxAge: 1000 * 60 * 5
+	} // dengan ini session akan expired dala, satu jam (ini pakai milisecond)
 }))
 
 app.use('/api/product' , productRoutes)

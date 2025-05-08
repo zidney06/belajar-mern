@@ -13,7 +13,7 @@ export default function ProductList ({header, tag}) {
 		<div className="my-3 border rounded p-1">
 			<h4>Produk tersedia</h4>
 			<div className="container-fluid d-flex overflow-auto p-2">
-			{products.map((book, i) => (
+			{products.length === 0 ? `Barang dengan kategori ini kosong` : products.map((book, i) => (
 				<div className="card dev-card mx-1" key={i}>
 				  <img src={book.image} className="card-img-top" alt="..." />
 				  <div className="card-body p-1">
@@ -26,12 +26,12 @@ export default function ProductList ({header, tag}) {
 		</div>
 		)
 	}
-
+	
   return (
   <div className="my-3 border rounded p-1">
 		<h4>{header}</h4>
 		<div className="container-fluid d-flex overflow-auto p-2">
-		{filteredBooks.map((book, i) => (
+		{filteredBooks.length === 0 ? `Barang dengan kategori ${header} kosong` : filteredBooks.map((book, i) => (
 			<div className="card dev-card mx-1" key={i}>
 			  <img src={book.image} className="card-img-top" alt="..." />
 			  <div className="card-body p-1">

@@ -7,25 +7,6 @@ import User from '../models/userModel.js'
 
 const router = express.Router()
 
-// const validationToken = (req, res, next) => {
-//   const {authorization} = req.headers
-
-//   if(!authorization){
-//     return res.status(401).json({message: "Token diperlukan"})
-//   }
-
-//   const token = authorization.split(' ')[1]
-
-//   try {
-//     const jwtDecoded = jwt.verify(token, process.env.JWT_SECRET)
-
-//     req.userData = jwtDecoded
-//   } catch (err) {
-//     return res.status(402).json({message: "Unauthorized"})
-//   }
-//   next()
-// }
-
 router.post('/register', async (req, res) => {
   const user = req.body
   const salt = await bcrypt.genSalt(10)
@@ -80,13 +61,21 @@ router.post('/login', async (req, res) => {
     // cek apakah password benar atau tidak
     if(isMatch){
       // membuat id session
-      req.session.userId = user._id // berarti yang disimpan itu ini
+      // req.session.tes muali bagian tes namanya bisa diubah tapi entah mengapa kalau dinamai id kok gak bisa
+      // untuk megset cookie pada express-session dilakukan dengan cara ini
+      req.session.data = {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        role: 'admin'
+      } // berarti yang disimpan itu ini
       req.session.save(err => {
         if(err){
           console.log('e', err)
         }
       })
-      console.log('login' ,req.session)
+
+      console.log('login' ,req.session, res.cookie)
 
       // membuat autentikasi menggunakan jsonwebtoken
       const payload = {
@@ -94,7 +83,9 @@ router.post('/login', async (req, res) => {
         username: user.username,
         email: user.email
       }
+
       const token = jwt.sign(payload, process.env.JWT_SECRET, {expiresIn: 60 * 60 * 1})
+      
       return res.status(200).json({
         message: "user ditemukan dan berhasil login",
         data: {
@@ -114,13 +105,50 @@ router.post('/login', async (req, res) => {
   }
 })
 
+router.post('/update', async (req, res, next) => {
+  console.log(req.session.data)
+  // mengupdate session dan cookie
+  // req.session.data.role = 'user'
+  const data = req.session.data
+  const user = await User.findOne({email: data.email})
+  if(!user){
+    return res.status(404).json({message: `User dengan email ${req.body.email} tidak ditemukan`})
+  }
+
+  console.log(req.session.cookie.maxAge)
+
+  // regenerate membuat sesi baru sekaligus menghapus sesi yang lama
+  req.session.regenerate(err => {
+    if(err){
+      return next()
+    }
+    console.log(req.session)
+    req.session.data = {
+      id: user._id,
+      username: user.username,
+      email: user.email,
+      role: 'user'
+    }
+    req.session.save(err => {
+      if(err){
+        return next()
+      }
+    })
+  })
+
+  res.json({message: 'OK'})
+})
+
+// memperbarui sesi
 router.post('/logout', (req, res) => {
   console.log('logout: ', req.session)
+  console.log(req.session.cookie.maxAge)
+  // ini digunakan untuk menghaous sesi disisi server
   req.session.destroy(err => {
     if(err){
       return res.status(500).json({message: "gagal logout"})
     }
-    res.clearCookie('connect.sid')
+    res.clearCookie('connect.sid') // ini digunakan untuk menghapus cookie di sisi client
     res.json({message: "berhasil logout"})
   })
 })

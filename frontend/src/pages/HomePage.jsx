@@ -1,11 +1,11 @@
 import {useState} from 'react'
 import Slider from 'react-slick';
 import ProductList from '../components/ProductList'
+import Footer from '../components/Footer'
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
-import {FaInstagram, FaYoutube} from 'react-icons/fa'
 
 //kalau bisa ganti library untuk mmebuat carousel
 
@@ -41,21 +41,6 @@ export default function HomePage() {
 				<ProductList header="Majalah" tag="majalah" />
 				<ProductList />	
 			</main>
-
-			<footer className="bg-primary container-fluid text-light row p-3">
-				<div className="col text-center mb-0">
-					<h3 className="mb-0">
-						<FaInstagram />
-						@Toko Al-Hidayah
-					</h3>
-				</div>
-				<div className="col text-center">
-					<h3 className="mb-0">
-						<FaYoutube />
-						@Toko Al-Hidayah
-					</h3>
-				</div>
-			</footer>
 		</div>	
 	)
 }

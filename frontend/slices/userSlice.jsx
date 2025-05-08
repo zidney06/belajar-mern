@@ -9,19 +9,19 @@ const newProductSlice = createSlice({
 		}
 	},
 	reducers: {
-		setValue: (state, action) => {
+		setUser: (state, action) => {
 			state.value.data = action.payload
 		},
-		delValue: (state) => {
+		delUser: (state) => {
 			state.value.data = null
 		},
-		setProducts: (state, action) => {
+		setUserProducts: (state, action) => {
 			state.value.products = action.payload
 		},
-		addProduct: (state, action) => {
+		addUserProduct: (state, action) => {
 			state.value.products.push(action.payload)
 		},
-		delProduct: (state, action) => {
+		delUserProduct: (state, action) => {
 			state.value.products = state.value.products.filter((item, i) => {
 				if(i === action.payload.index){
 					return
@@ -29,7 +29,7 @@ const newProductSlice = createSlice({
 				return item
 			})
 		},
-		editProduct: (state, action) => {
+		editUserProduct: (state, action) => {
 			state.value.products = state.value.products.map((product, i) => {
 				if(product._id === action.payload.id){
 					return {...product, 
@@ -47,6 +47,13 @@ const newProductSlice = createSlice({
 	}
 })
 
-export const {setValue, delValue, setProducts} = newProductSlice.actions
+export const {
+	setUser, 
+	delUser, 
+	setUserProducts, 
+	delUserProduct,
+	addUserProduct,
+	editUserProduct
+} = newProductSlice.actions
 
 export default newProductSlice.reducer

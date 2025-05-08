@@ -8,6 +8,7 @@ import axios from 'axios'
 import {setInitial} from '../slices/productSlice'
 import {useDispatch} from 'react-redux'
 import Navbar from './components/Navbar';
+import Footer from './components/Footer'
 
 function App() {
 	const dispatch = useDispatch()
@@ -33,6 +34,7 @@ function App() {
 				<Route path="/create" element={<CreatePage />} />
 				<Route path="/login" element={<LoginPage />} />
 			</Routes>
+			<Footer />
     </>
   )
 }

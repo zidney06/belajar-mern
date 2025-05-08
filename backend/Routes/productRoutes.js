@@ -18,10 +18,11 @@ router.get('/', async (req, res) => {
 
 // protected route
 router.get('/my-product', validationToken, async (req, res) => {
-  if(req.session.userId){
-    const products = await Product.find({ownerId: req.session.userId})
+  const userData = req.session.data
+  if(userData){
+    const products = await Product.find({ownerId: userData.id})
     res.json({
-      message: 'hello id : ' + req.session.userId,
+      message: 'hello: ' + userData.username,
       data: products
     })
   }
