@@ -50,6 +50,7 @@ body {
 	width: 90%;
 }
 .auth-box {
+	max-width: 300px;
 	box-sizing: content-box;
 	max-height: 275px;
 }

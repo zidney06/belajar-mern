@@ -6,7 +6,7 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import {addProduct, delProduct, editProduct} from '../../slices/productSlice'
 import {
-	setUser,
+    setUser,
 	setUserProducts,
 	delUserProduct,
 	addUserProduct,
@@ -16,11 +16,12 @@ import {
 export default function CreatePage() {
 	const dispatch = useDispatch()
 	const {data, products} = useSelector(state => state.user.value)
-	const title = useRef('')
-	const author = useRef('')
-	const price = useRef('')
-	const ISBN = useRef('')
-	const image = useRef('')
+
+	const [title, setTitle] = useState('')
+	const [author, setAuthor] = useState('')
+	const [price, setPrice] = useState(0)
+	const [ISBN, setISBN] = useState('')
+	const [image, setImage] = useState(null)
 	const [tags, setTags] = useState([])
 	const [isEdit, setIsEdit] = useState(false)
 	const [id, setId] = useState(null)
@@ -46,79 +47,120 @@ export default function CreatePage() {
 	  })
 	}, [])
 
-	const hndlConfirm = () => {
-		if(isEdit){
-			console.log({
-				id: id,
-				title: title.current.value,
-				author: author.current.value,
-				price: price.current.value,
-				ISBN: ISBN.current.value,
-				image: image.current.value,
-				tags: tags,
-				ownerId: data._id
-			})
-			dispatch(editProduct({
-				id: id,
-				title: title.current.value,
-				author: author.current.value,
-				price: price.current.value,
-				ISBN: ISBN.current.value,
-				image: image.current.value,
-				tags: tags,
-				ownerId: data._id
-			}))
-			dispatch(editUserProduct({
-				id: id,
-				title: title.current.value,
-				author: author.current.value,
-				price: price.current.value,
-				ISBN: ISBN.current.value,
-				image: image.current.value,
-				tags: tags,
-				ownerId: data._id
-			}))
+	const validation = () => {
+		let messages = []
+    const parsedPrice = parseInt(price)
+    console.log('v', price)
+		if(!title){
+			messages.push('title kosong')
+		}
+		if(!author){
+			messages.push('auhtor kosong')
+		}
+		if(!parsedPrice || typeof parsedPrice != 'number') {
+      messages.push('price tidak valid'); // Perbaikan validasi price
+    }
+		if(!ISBN){
+			messages.push('ISBN kosong')
+		}
+		if(!image){
+			messages.push('image kosong')
+		}
 
+		// console.log(typeof parseInt(price) == 'number' || !price)
+		// console.log(typeof price)
+		// console.log(!price)
+
+    console.log('v2', price)
+
+		if(messages.length > 0){
+			alert('Terdapat error yaitu: ' + messages)
+			return false
+		}
+		return true
+	}
+
+	const hndlTitle = (e) => {
+		setTitle(e.target.value)
+	}
+
+	const hndlAuthor = (e) => {
+		setAuthor(e.target.value)
+	}
+
+  const hndlPrice = (e) => {
+    /*masalahnya tedapat pada fitur dari laptop yaitu ketika menggulir 
+    mouse kebawah maka value dari input type number akan berkurangg, jika digulir ke atas
+    value type number bertambah*/
+    setPrice(e.target.value)
+  }
+
+  const hndlISBN = (e) => {
+		setISBN(e.target.value)
+	}
+
+  const hndlImage = (e) => {
+  	setImage(e.target.files[0])
+  }
+
+  // console.log('p')
+
+	
+
+	const hndlConfirm = (file) => {
+		if(!validation()){
+			return
+		}
+		if(isEdit){
 			axios.put(`http://localhost:3000/api/product/${id}`, {
-				title: title.current.value,
-				author: author.current.value,
-				price: price.current.value,
-				ISBN: ISBN.current.value,
-				image: image.current.value,
+				title: title,
+				author: author,
+				price: price,
+				ISBN: ISBN,
 				tags: tags,
-				ownerId: data._
+				ownerId: data._id
 			})
 				.then(res => {
 					console.log(res.data)
+					// mengubah global state untuk products
+					dispatch(editProduct(res.data.data))
+					// mengubah state untuk product user
+					dispatch(editUserProduct(res.data.data))
+
+					setIsEdit(false)
+					resetValue()
 				})
 				.catch(err => {
 					console.error(err)
 				})
-
-			setIsEdit(false)
-			resetValue()
 		} else {
-			// mengubah global state untuk products
-			
+			const formData = new FormData()
 
-			axios.post('http://localhost:3000/api/product', {
-				title: title.current.value,
-				author: author.current.value,
-				price: price.current.value,
-				ISBN: ISBN.current.value,
-				image: image.current.value,
-				tags: tags,
+			formData.append('file', image)
+			formData.append('data', JSON.stringify({
+				title,
+				author,
+				price,
+				ISBN,
+				image: '',
+				tags,
 				ownerId: data._id
-			})
+			}))
+
+			axios.post('http://localhost:3000/api/product', formData)
 				.then(res => {
+					console.log(res.data.data)
+					// mengubah global state untuk products
 					dispatch(addProduct(res.data.data))
+					// mengubah state untuk product user
 					dispatch(addUserProduct(res.data.data))
+					
+					resetValue()
 				})
 				.catch(err => {
 					console.error(err)
 				})
 
-			resetValue()
 		}
 	}
 	const hndlChangeTag = (e) => {
@@ -131,39 +173,45 @@ export default function CreatePage() {
 			setTags(prev => prev.filter(item => item !== value))
 		}
 	}
+	const hndlDelete = (index, id) => {
+		if(confirm("Apakah yakin ingin dihapus?")){
+			try {
+				axios.delete(`http://localhost:3000/api/product/${id}`)	
+
+				dispatch(delProduct({id: id}))
+				dispatch(delUserProduct({index: index}))
+				
+				console.log("hapus", id)
+			} catch (err) {
+				console.log(err)
+			}	
+		}
+	}
 	const hndlEdit = (product) => {
-		title.current.value = product.title
-		author.current.value = product.author
-		price.current.value = product.price
-		ISBN.current.value = product.ISBN
-		image.current.value = product.image
+		setTitle(product.title)
+		setAuthor(product.author)
+		setPrice(product.price)
+		setISBN(product.ISBN)
 		setTags(product.tags)
 		setIsEdit(true)
 		setId(product._id)
 	}
-	const hndlDelete = (index, id) => {
-		
-		try {
-			axios.delete(`http://localhost:3000/api/product/${id}`)	
-
-			dispatch(delProduct({id: id}))
-			dispatch(delUserProduct({index: index}))
-		} catch (err) {
-			console.log(err)
-		}
-		
-
-		console.log("hapus", id)
-	}
 	const resetValue = () => {
-		title.current.value = ""
-		author.current.value = ""
-		price.current.value = ""
-		ISBN.current.value = ""
-		image.current.value = ""
+		setTitle('')
+		setAuthor('')
+		setPrice(0)
+		setISBN('')
+		setImage(null)
 		setTags([])
 		setIsEdit(false)
 	}
+
+	console.log({
+		author,
+		title,
+		price,
+		ISBN
+	})
 	
 	if(!data){
 		return (
@@ -181,24 +229,24 @@ export default function CreatePage() {
 			<h1 className="text-center">{isEdit ? "Edit Data" : "Input Data"}</h1>
 			<div className="mb-3">
   			<label htmlFor="title" className="form-label">Title</label>
-  			<input ref={title} type="text" className="form-control" id="title" placeholder="Title" autoComplete="off" />
+  			<input value={title} type="text" className="form-control" id="title" placeholder="Title" autoComplete="off" onChange={hndlTitle} />
 			</div>
 			<div className="mb-3">
   			<label htmlFor="Author" className="form-label">Author</label>
-  			<input ref={author} type="text" className="form-control" id="Author" placeholder="Author" autoComplete="off" />
+  			<input value={author} type="text" className="form-control" id="Author" placeholder="Author" autoComplete="off" onChange={hndlAuthor} />
 			</div>
 			<div className="mb-3">
   			<label htmlFor="Price" className="form-label">Price</label>
-  			<input ref={price} type="text" className="form-control" id="Price" placeholder="Price" autoComplete="off" />
+  			<input value={price} type="number" className="form-control" id="Price" autoComplete="off" onChange={hndlPrice} />
 			</div>
 			<div className="mb-3">
   			<label htmlFor="ISBN" className="form-label">ISBN</label>
-  			<input ref={ISBN} type="text" className="form-control" id="ISBN" placeholder="000-000-000" autoComplete="off" />
+  			<input value={ISBN} type="text" className="form-control" id="ISBN" placeholder="000-000-000" autoComplete="off" onChange={hndlISBN} />
 			</div>
 			{/*bagian image nanti diubah menjadi input type file*/}
 			<div className="mb-3">
   			<label htmlFor="Image" className="form-label">Image</label>
-  			<input ref={image} type="text" className="form-control" id="Image" placeholder="https://image.com" autoComplete="off" />
+  			<input type="file" className="form-control" id="Image" onChange={hndlImage} />
 			</div>
 			<p className="text-center">Pilih tipe buku</p>
 			<div className="form-check">
@@ -226,6 +274,8 @@ export default function CreatePage() {
 				  <img src={product.image} className="card-img-top" alt="..." />
 				  <div className="card-body p-1">
 				    <h5 className="card-title">{product.title}</h5>
+				    <p>Author: {product.author}</p>
+			    	<p>Price: {product.price}</p>
 				    <p>tags: {product.tags}</p>
 				    <div className="d-flex justify-content-between">
 				    	<button className="btn btn-outline-danger" onClick={() => hndlDelete(i, product._id)}>Hapus</button>

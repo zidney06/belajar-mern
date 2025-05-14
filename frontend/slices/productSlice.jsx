@@ -24,7 +24,7 @@ const productSlice = createSlice({
 		},
 		editProduct: (state, action) => {
 			state.value = state.value.map((product, i) => {
-				if(product._id === action.payload.id){
+				if(product._id === action.payload._id){
 					return {...product, 
 						title: action.payload.title,
 						author: action.payload.author,

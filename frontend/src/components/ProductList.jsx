@@ -18,6 +18,8 @@ export default function ProductList ({header, tag}) {
 				  <img src={book.image} className="card-img-top" alt="..." />
 				  <div className="card-body p-1">
 				    <h5 className="card-title">{book.title}</h5>
+				    <p>Author: {book.author}</p>
+			    	<p>Price: {book.price}</p>
 				    <p>tags: {book.tags}</p>
 				  </div>
 				</div>	
@@ -36,6 +38,8 @@ export default function ProductList ({header, tag}) {
 			  <img src={book.image} className="card-img-top" alt="..." />
 			  <div className="card-body p-1">
 			    <h5 className="card-title">{book.title}</h5>
+			    <p>Author: {book.author}</p>
+			    <p>Price: {book.price}</p>
 			    <p>{book.tags}</p>
 			  </div>
 			</div>	
