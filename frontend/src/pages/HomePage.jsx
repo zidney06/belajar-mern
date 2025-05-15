@@ -23,8 +23,8 @@ export default function HomePage() {
 
 	return (
 		<div className="container-fluid p-0">
-			<div className="w-75 mx-auto tes my-5">
-				<Slider {...settings}>
+			<div className="w-75 mx-auto my-5">
+				<Slider {...settings} className="tes">
 	 				<div className="slide">
 	 					<img src="https://images.unsplash.com/photo-1517770413964-df8ca61194a6?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" className="slide" />
 	 		    </div>
@@ -39,6 +39,7 @@ export default function HomePage() {
 			<main className="px-2">
 				<ProductList header="Komik" tag="komik" />
 				<ProductList header="Majalah" tag="majalah" />
+				<ProductList header="Buku" tag="buku" />
 				<ProductList />	
 			</main>
 		</div>	

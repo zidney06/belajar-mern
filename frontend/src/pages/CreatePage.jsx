@@ -6,7 +6,7 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import {addProduct, delProduct, editProduct} from '../../slices/productSlice'
 import {
-    setUser,
+  setUser,
 	setUserProducts,
 	delUserProduct,
 	addUserProduct,
@@ -21,7 +21,7 @@ export default function CreatePage() {
 	const [author, setAuthor] = useState('')
 	const [price, setPrice] = useState(0)
 	const [ISBN, setISBN] = useState('')
-	const [image, setImage] = useState(null)
+	const image = useRef(null)
 	const [tags, setTags] = useState([])
 	const [isEdit, setIsEdit] = useState(false)
 	const [id, setId] = useState(null)
@@ -50,7 +50,7 @@ export default function CreatePage() {
 	const validation = () => {
 		let messages = []
     const parsedPrice = parseInt(price)
-    console.log('v', price)
+    console.log(image.current.files)
 		if(!title){
 			messages.push('title kosong')
 		}
@@ -63,13 +63,9 @@ export default function CreatePage() {
 		if(!ISBN){
 			messages.push('ISBN kosong')
 		}
-		if(!image){
+		if(!image.current.files.length > 0){
 			messages.push('image kosong')
 		}
-
-		// console.log(typeof parseInt(price) == 'number' || !price)
-		// console.log(typeof price)
-		// console.log(!price)
 
     console.log('v2', price)
 
@@ -99,19 +95,12 @@ export default function CreatePage() {
 		setISBN(e.target.value)
 	}
 
-  const hndlImage = (e) => {
-  	setImage(e.target.files[0])
-  }
-
-  // console.log('p')
-
-	
-
 	const hndlConfirm = (file) => {
 		if(!validation()){
 			return
 		}
 		if(isEdit){
+			// tinggal ngatur bagian edit
 			axios.put(`http://localhost:3000/api/product/${id}`, {
 				title: title,
 				author: author,
@@ -119,7 +108,7 @@ export default function CreatePage() {
 				ISBN: ISBN,
 				tags: tags,
 				ownerId: data._id
-			})
+			}, {withCredentials: true})
 				.then(res => {
 					console.log(res.data)
 					// mengubah global state untuk products
@@ -132,11 +121,11 @@ export default function CreatePage() {
 				})
 				.catch(err => {
 					console.error(err)
+					alert(err.response.data.message)
 				})
 		} else {
 			const formData = new FormData()
 
-			formData.append('file', image)
 			formData.append('data', JSON.stringify({
 				title,
 				author,
@@ -146,8 +135,11 @@ export default function CreatePage() {
 				tags,
 				ownerId: data._id
 			}))
+			formData.append('file', image.current.files[0])
 
-			axios.post('http://localhost:3000/api/product', formData)
+			console.log(formData, image.current.files)
+
+			axios.post('http://localhost:3000/api/product', formData, {withCredentials: true})
 				.then(res => {
 					console.log(res.data.data)
 					// mengubah global state untuk products
@@ -159,8 +151,8 @@ export default function CreatePage() {
 				})
 				.catch(err => {
 					console.error(err)
+					alert(err.response.data.message)
 				})
-
 		}
 	}
 	const hndlChangeTag = (e) => {
@@ -201,17 +193,13 @@ export default function CreatePage() {
 		setAuthor('')
 		setPrice(0)
 		setISBN('')
-		setImage(null)
+		image.current.files = null
+		image.current.value = null
 		setTags([])
 		setIsEdit(false)
 	}
 
-	console.log({
-		author,
-		title,
-		price,
-		ISBN
-	})
+	// console.log(image.current.files)
 	
 	if(!data){
 		return (
@@ -246,7 +234,7 @@ export default function CreatePage() {
 			{/*bagian image nanti diubah menjadi input type file*/}
 			<div className="mb-3">
   			<label htmlFor="Image" className="form-label">Image</label>
-  			<input type="file" className="form-control" id="Image" onChange={hndlImage} />
+  			<input ref={image} type="file" className="form-control" id="Image" />
 			</div>
 			<p className="text-center">Pilih tipe buku</p>
 			<div className="form-check">
@@ -261,6 +249,12 @@ export default function CreatePage() {
     			Majalah
   			</label>
 			</div>
+			<div className="form-check">
+  			<input className="form-check-input" type="checkbox" value="buku" id="buku" checked={tags.includes("buku")} onChange={hndlChangeTag} />
+  			<label className="form-check-label" htmlFor="buku">
+    			Buku
+  			</label>
+			</div>
 			<div className="my-3 d-flex justify-content-between">
 				<button className="btn btn-outline-danger" onClick={resetValue}>Hapus Input</button>
 				<button className="btn btn-outline-primary" onClick={hndlConfirm}>Konfirmasi</button>
@@ -271,7 +265,7 @@ export default function CreatePage() {
 			<div className="container-fluid d-flex overflow-auto p-2">
 			{products.map((product, i) => (
 				<div className="card dev-card mx-1" key={i}>
-				  <img src={product.image} className="card-img-top" alt="..." />
+				  <img src={product.image} className="card-img-top" alt="..." style={{height: 150}} />
 				  <div className="card-body p-1">
 				    <h5 className="card-title">{product.title}</h5>
 				    <p>Author: {product.author}</p>

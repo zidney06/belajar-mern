@@ -41,7 +41,7 @@ app.use(session({
 	// jika ingin memberikan expired pada session maka pakai ini
 	cookie: {
 		maxAge: 1000 * 60 * 30
-	} // dengan ini session akan expired dala, satu jam (ini pakai milisecond)
+	} // dengan ini session akan expired dalam, satu jam (ini pakai milisecond)
 }))
 
 // Mendapatkan direktori saat ini menggunakan ES module syntax
@@ -51,7 +51,7 @@ const __dirname = path.dirname(__filename);
 // Membuat folder 'uploads' dapat diakses melalui URL
 // Misalnya, jika ada file 'gambar.jpg' di dalam folder 'uploads',
 // maka dapat diakses melalui URL: http://localhost:3000/fotos/gambar.jpg
-app.use('/fotos', express.static(path.join(__dirname, 'uploads')));
+app.use('/folder/fotos', express.static(path.join(__dirname, 'uploads')));
 
 app.use('/api/product' , productRoutes)
 app.use('/api/user' , userRoutes)

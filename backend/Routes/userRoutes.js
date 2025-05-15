@@ -66,8 +66,7 @@ router.post('/login', async (req, res) => {
       req.session.data = {
         id: user._id,
         username: user.username,
-        email: user.email,
-        role: 'admin'
+        email: user.email
       } // berarti yang disimpan itu ini
       req.session.save(err => {
         if(err){

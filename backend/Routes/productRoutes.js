@@ -8,6 +8,7 @@ import {validationToken} from '../middlewares/middleware.js'
 
 // pastikan folder upload sudah ada
 const uploadir = path.join(import.meta.dirname, '../uploads')
+
 if (!fs.existsSync(uploadir)){
   fs.mkdirSync(uploadir)
 }
@@ -19,7 +20,7 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     // beri nama unik pada file
-    const uniqueName = Date.now() + path.extname(file.originalname)
+    const uniqueName = Date.now() + req.session.data.id + path.extname(file.originalname)
     cb(null, uniqueName)
   }
 })
@@ -55,34 +56,24 @@ router.get('/my-product', validationToken, async (req, res) => {
   }
 })
 
-router.get('/get-foto/:filename', (req, res) => {
-  const {filename} = req.params
-  const filePath = path.join(import.meta.dirname, '../uploads', filename)
-
-  console.log(filePath)
-
-  res.sendFile(filePath, (err) => {
-    if(err){
-      console.error(err)
-      res.status(404).send('File tidak ditemukan')
-    }
-  })
-})
-
 router.post('/', upload.single('file'), async (req, res) => {
+  const userData = req.session.data
   
+  // cek apakah user memiliki sesi atau tidak
+  if(!userData){
+    res.status(401).json({message: "Sesi anda telah habis"})
+  }
+
+  // cek apakah user mengirimkan file atau tidak
   if(!req.file){
+    console.log(req.body)
     return res.status(400).json({message: 'no file uploaded'})
   }
 
-  // kirim info foto yang disimpan ke frontend
-
-
   const product = JSON.parse(req.body.data)
 
-  product.image = `http://localhost:3000/fotos/${req.file.filename}`
+  product.image = `http://localhost:3000/folder/fotos/${req.file.filename}`
 
-  
   console.log(product)
   
   if(!product.author ||
@@ -96,7 +87,7 @@ router.post('/', upload.single('file'), async (req, res) => {
   const newProduct = new Product(product)
   
   try {
-    // await newProduct.save()
+    await newProduct.save()
     res.status(201).json({
       success: true, 
       data: newProduct,
@@ -108,7 +99,6 @@ router.post('/', upload.single('file'), async (req, res) => {
     res.status(500).json({success: false, messsage: "internal server error"})
   }
 })
-
 
 router.put('/:id', async (req, res) => {
   const {id} = req.params
