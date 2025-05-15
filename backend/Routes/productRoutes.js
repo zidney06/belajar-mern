@@ -20,8 +20,14 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     // beri nama unik pada file
-    const uniqueName = Date.now() + req.session.data.id + path.extname(file.originalname)
-    cb(null, uniqueName)
+    console.log(req.session.data)
+    if(req.session.data){
+      console.log(req.session.data, 'multer')
+      const uniqueName = Date.now() + req.session.data.id + path.extname(file.originalname)
+      cb(null, uniqueName)
+    } else {
+      cb(null, file.originalname)
+    }
   }
 })
 
@@ -100,21 +106,55 @@ router.post('/', upload.single('file'), async (req, res) => {
   }
 })
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', upload.single('file'), async (req, res) => {
   const {id} = req.params
-  const newProduct = req.body
+
+  const userData = req.session.data
   
-  if(!mongoose.Types.ObjectId.isValid(id)){
-    return res.status(404).json({succesa: false, message: "data tidak ditemukan"})
+  // cek apakah user memiliki sesi atau tidak
+  if(!userData){
+    return res.status(401).json({message: "Sesi anda telah habis"})
+  }
+
+  // cek apakah user mengirimkan file atau tidak
+  if(!req.file){
+    console.log('tidak ada file')
+
+    const newProduct = JSON.parse(req.body.data)
+
+    console.log(newProduct)
+    
+    if(!mongoose.Types.ObjectId.isValid(id)){
+      return res.status(404).json({succesa: false, message: "data tidak ditemukan"})
+    }
+    
+    try {
+      const updatedProduct = await Product.findByIdAndUpdate(id, newProduct, {new: true})
+      res.status(201).json({success: true, data: updatedProduct})
+    } catch (e) {
+      console.log("terjadi error: " + e.message)
+      res.status(500).json({success: false, messsage: "internal server error"})
+    }
+  } else {
+    const newProduct = JSON.parse(req.body.data)
+
+    newProduct.image = `http://localhost:3000/folder/fotos/${req.file.filename}`
+
+    console.log(newProduct, req.file)
+    
+    if(!mongoose.Types.ObjectId.isValid(id)){
+      return res.status(404).json({succesa: false, message: "data tidak ditemukan"})
+    }
+    
+    try {
+      const updatedProduct = await Product.findByIdAndUpdate(id, newProduct, {new: true})
+      res.status(201).json({success: true, data: updatedProduct})
+    } catch (e) {
+      console.log("terjadi error: " + e.message)
+      res.status(500).json({success: false, messsage: "internal server error"})
+    }
   }
   
-  try {
-    const updatedProduct = await Product.findByIdAndUpdate(id, newProduct, {new: true})
-    res.status(201).json({success: true, data: updatedProduct})
-  } catch (e) {
-    console.log("terjadi error: " + e.message)
-    res.status(500).json({success: false, messsage: "internal server error"})
-  }
 })
 
 router.delete('/:id', async (req, res) => {

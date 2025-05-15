@@ -22,6 +22,7 @@ export default function CreatePage() {
 	const [price, setPrice] = useState(0)
 	const [ISBN, setISBN] = useState('')
 	const image = useRef(null)
+	const [imagePreview, setImagePreview] = useState(null)
 	const [tags, setTags] = useState([])
 	const [isEdit, setIsEdit] = useState(false)
 	const [id, setId] = useState(null)
@@ -50,7 +51,7 @@ export default function CreatePage() {
 	const validation = () => {
 		let messages = []
     const parsedPrice = parseInt(price)
-    console.log(image.current.files)
+    console.log(image)
 		if(!title){
 			messages.push('title kosong')
 		}
@@ -63,7 +64,7 @@ export default function CreatePage() {
 		if(!ISBN){
 			messages.push('ISBN kosong')
 		}
-		if(!image.current.files.length > 0){
+		if(!imagePreview){
 			messages.push('image kosong')
 		}
 
@@ -95,20 +96,50 @@ export default function CreatePage() {
 		setISBN(e.target.value)
 	}
 
+	const hndlImage = () => {
+		const file = image.current.files[0]
+		const imageUrl = URL.createObjectURL(file)
+
+		if(file) {
+      setImagePreview(URL.createObjectURL(file));
+    } else {
+      setImagePreview(null);
+    }
+	}
+
 	const hndlConfirm = (file) => {
 		if(!validation()){
 			return
 		}
 		if(isEdit){
 			// tinggal ngatur bagian edit
-			axios.put(`http://localhost:3000/api/product/${id}`, {
-				title: title,
-				author: author,
-				price: price,
-				ISBN: ISBN,
-				tags: tags,
-				ownerId: data._id
-			}, {withCredentials: true})
+			const formData = new FormData()
+
+			console.log(image.current.files)
+			if(image.current.files.length == 0){
+				formData.append('data', JSON.stringify({
+					title,
+					author,
+					price,
+					ISBN,
+					image: imagePreview,
+					tags,
+					ownerId: data._id
+				}))
+			} else {
+				formData.append('file', image.current.files[0])
+				formData.append('data', JSON.stringify({
+					title,
+					author,
+					price,
+					ISBN,
+					image: '',
+					tags,
+					ownerId: data._id
+				}))	
+			}
+			
+			axios.put(`http://localhost:3000/api/product/${id}`, formData, {withCredentials: true})
 				.then(res => {
 					console.log(res.data)
 					// mengubah global state untuk products
@@ -136,8 +167,6 @@ export default function CreatePage() {
 				ownerId: data._id
 			}))
 			formData.append('file', image.current.files[0])
-
-			console.log(formData, image.current.files)
 
 			axios.post('http://localhost:3000/api/product', formData, {withCredentials: true})
 				.then(res => {
@@ -184,6 +213,7 @@ export default function CreatePage() {
 		setAuthor(product.author)
 		setPrice(product.price)
 		setISBN(product.ISBN)
+		setImagePreview(product.image)
 		setTags(product.tags)
 		setIsEdit(true)
 		setId(product._id)
@@ -195,11 +225,12 @@ export default function CreatePage() {
 		setISBN('')
 		image.current.files = null
 		image.current.value = null
+		setImagePreview(null)
 		setTags([])
 		setIsEdit(false)
 	}
 
-	// console.log(image.current.files)
+	// console.log(isEdit)
 	
 	if(!data){
 		return (
@@ -232,10 +263,17 @@ export default function CreatePage() {
   			<input value={ISBN} type="text" className="form-control" id="ISBN" placeholder="000-000-000" autoComplete="off" onChange={hndlISBN} />
 			</div>
 			{/*bagian image nanti diubah menjadi input type file*/}
-			<div className="mb-3">
-  			<label htmlFor="Image" className="form-label">Image</label>
-  			<input ref={image} type="file" className="form-control" id="Image" />
+			<div>
+				{imagePreview && (
+        	<img src={imagePreview} alt="Preview" style={{ width: 200, height: 150 }} />
+      	)}
+				<div className="mb-3">
+	  			<label htmlFor="Image" className="form-label">Image</label>
+	  			<input ref={image} type="file" className="form-control" id="Image" onChange={hndlImage} />
+				</div>	
 			</div>
+			
+			{/*tipe buku*/}
 			<p className="text-center">Pilih tipe buku</p>
 			<div className="form-check">
   			<input className="form-check-input" type="checkbox" value="komik" id="komik" checked={tags.includes("komik")} onChange={hndlChangeTag} />
