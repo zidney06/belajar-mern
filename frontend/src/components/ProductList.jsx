@@ -15,7 +15,7 @@ export default function ProductList ({header, tag}) {
 			<div className="container-fluid d-flex overflow-auto p-2">
 			{products.length === 0 ? `Barang dengan kategori ini kosong` : products.map((book, i) => (
 				<div className="card dev-card mx-1" key={i}>
-				  <img src={book.image} className="card-img-top" alt="..." style={{height: 150}} />
+				  <img src={book.imageUrl} className="card-img-top" alt="..." style={{height: 150}} />
 				  <div className="card-body p-1">
 				    <h5 className="card-title">{book.title}</h5>
 				    <p>Author: {book.author}</p>
@@ -35,7 +35,7 @@ export default function ProductList ({header, tag}) {
 		<div className="container-fluid d-flex overflow-auto p-2">
 		{filteredBooks.length === 0 ? `Barang dengan kategori ${header} kosong` : filteredBooks.map((book, i) => (
 			<div className="card dev-card mx-1" key={i}>
-			  <img src={book.image} className="card-img-top" alt="..." style={{height: 150}} />
+			  <img src={book.imageUrl} className="card-img-top" alt="..." style={{height: 150}} />
 			  <div className="card-body p-1">
 			    <h5 className="card-title">{book.title}</h5>
 			    <p>Author: {book.author}</p>

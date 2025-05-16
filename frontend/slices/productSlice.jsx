@@ -30,7 +30,8 @@ const productSlice = createSlice({
 						author: action.payload.author,
 						price: action.payload.price,
 						ISBN: action.payload.ISBN,
-						image: action.payload.image,
+						imageUrl: action.payload.imageUrl,
+						imageName: action.payload.imageName,
 						tags: action.payload.tags,
 					}
 				}

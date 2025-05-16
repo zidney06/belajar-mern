@@ -23,6 +23,7 @@ export default function CreatePage() {
 	const [ISBN, setISBN] = useState('')
 	const image = useRef(null)
 	const [imagePreview, setImagePreview] = useState(null)
+	const [imageName, setImageName] = useState(null)
 	const [tags, setTags] = useState([])
 	const [isEdit, setIsEdit] = useState(false)
 	const [id, setId] = useState(null)
@@ -118,22 +119,26 @@ export default function CreatePage() {
 			console.log(image.current.files)
 			if(image.current.files.length == 0){
 				formData.append('data', JSON.stringify({
+					_id: id,
 					title,
 					author,
 					price,
 					ISBN,
-					image: imagePreview,
+					imageUrl: imagePreview,
+					imageName: imageName,
 					tags,
 					ownerId: data._id
 				}))
 			} else {
 				formData.append('file', image.current.files[0])
 				formData.append('data', JSON.stringify({
+					_id: id,
 					title,
 					author,
 					price,
 					ISBN,
-					image: '',
+					imageUrl: '',
+					imageName: imageName,
 					tags,
 					ownerId: data._id
 				}))	
@@ -162,7 +167,7 @@ export default function CreatePage() {
 				author,
 				price,
 				ISBN,
-				image: '',
+				imageUrl: '',
 				tags,
 				ownerId: data._id
 			}))
@@ -213,12 +218,14 @@ export default function CreatePage() {
 		setAuthor(product.author)
 		setPrice(product.price)
 		setISBN(product.ISBN)
-		setImagePreview(product.image)
+		setImagePreview(product.imageUrl)
+		setImageName(product.imageName)
 		setTags(product.tags)
 		setIsEdit(true)
 		setId(product._id)
 	}
 	const resetValue = () => {
+		setId(null)
 		setTitle('')
 		setAuthor('')
 		setPrice(0)
@@ -226,6 +233,7 @@ export default function CreatePage() {
 		image.current.files = null
 		image.current.value = null
 		setImagePreview(null)
+		setImageName(null)
 		setTags([])
 		setIsEdit(false)
 	}
@@ -303,7 +311,7 @@ export default function CreatePage() {
 			<div className="container-fluid d-flex overflow-auto p-2">
 			{products.map((product, i) => (
 				<div className="card dev-card mx-1" key={i}>
-				  <img src={product.image} className="card-img-top" alt="..." style={{height: 150}} />
+				  <img src={product.imageUrl} className="card-img-top" alt="..." style={{height: 150}} />
 				  <div className="card-body p-1">
 				    <h5 className="card-title">{product.title}</h5>
 				    <p>Author: {product.author}</p>

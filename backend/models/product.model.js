@@ -9,7 +9,11 @@ const skemaBarang = new mongoose.Schema({
     type: String,
     required: true
   },
-  image: {
+  imageUrl: {
+    type: String,
+    required: true
+  },
+  imageName: {
     type: String,
     required: true
   },
