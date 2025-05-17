@@ -14,8 +14,6 @@ const productSlice = createSlice({
 		},
 		delProduct: (state, action) => {
 			state.value = state.value.filter((item, i) => {
-				console.log('item id:' + item._id)
-				console.log('id: ' + action.payload.id)
 				if(item._id !== action.payload.id){
 					return item
 				}

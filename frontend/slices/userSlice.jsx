@@ -30,7 +30,6 @@ const newProductSlice = createSlice({
 			})
 		},
 		editUserProduct: (state, action) => {
-			console.log(action.payload)
 			state.value.products = state.value.products.map((product, i) => {
 				if(product._id === action.payload._id){
 					return {...product, 

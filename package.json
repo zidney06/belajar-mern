@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "server": "node --watch ./backend/server.js"
+    "server": "node --watch ./backend/server.js",
+    "build": "npm i && npm i --prefix frontend && npm run build --prefix frontend",
+    "start": "node backend/server.js"
   },
   "keywords": [],
   "author": "",

@@ -16,6 +16,7 @@ dotenv.config()
 
 const app = express()
 const PORT = 3000
+const isProduction = true
 
 
 
@@ -56,8 +57,17 @@ app.use('/folder/fotos', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/product' , productRoutes)
 app.use('/api/user' , userRoutes)
 
-app.get('/', (req, res) => {
-	res.send("request berhasil coy")
+app.use(express.static(path.join(__dirname, '..', 'frontend', 'dist')))
+
+// production
+if(isProduction){
+	app.get('/', (req, res) => {
+		res.sendFile(path.join(__dirname, '..','frontend', 'dist', 'index.html'))
+	})
+}
+
+app.get('*', (req, res) => {
+	res.status(404).send("<h1>Page Not Found on the Server</h1>")
 })
 
 app.listen(PORT, () => {

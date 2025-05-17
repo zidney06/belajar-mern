@@ -52,7 +52,7 @@ export default function CreatePage() {
 	const validation = () => {
 		let messages = []
     const parsedPrice = parseInt(price)
-    console.log(image)
+    
 		if(!title){
 			messages.push('title kosong')
 		}
@@ -68,8 +68,6 @@ export default function CreatePage() {
 		if(!imagePreview){
 			messages.push('image kosong')
 		}
-
-    console.log('v2', price)
 
 		if(messages.length > 0){
 			alert('Terdapat error yaitu: ' + messages)
@@ -206,8 +204,6 @@ export default function CreatePage() {
 
 				dispatch(delProduct({id: id}))
 				dispatch(delUserProduct({index: index}))
-				
-				console.log("hapus", id)
 			} catch (err) {
 				console.log(err)
 			}	
