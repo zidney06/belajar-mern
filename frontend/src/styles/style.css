@@ -1,0 +1,60 @@
+body {
+	padding: 0;
+	margin: 0;
+}
+.red {
+	border: 1px solid red;
+	box-sizing: border-box;
+}
+.yellow {
+	border: 1px solid yellow;
+	box-sizing: border-box;
+}
+.search {
+	height: 70%;
+}
+.search-icon {
+	font-size: 1.8rem;
+	margin: auto;
+}
+.tes {
+	width: 60vw;
+	aspect-ratio: 2 / 1;
+	overflow: hidden;
+	border-radius: 15px;
+	margin: auto;
+}
+.slide {
+	width: 100%;
+	aspect-ratio: 2 / 1;
+}
+.slide img {
+	object-fit: cover;
+}
+.footer-icon {
+	color: white;
+	font-size: 1.5rem;
+}
+.link {
+	width: 100%;
+	display: block;
+	text-align: center;
+	color: white;
+	text-decoration: none;
+	font-size: 1.3rem;
+}
+.dev-card {
+	width: 200px;
+	flex: 0 0 200px;
+}
+.dev-input-box {
+	width: 90%;
+}
+.auth-box {
+	max-width: 300px;
+	box-sizing: content-box;
+	max-height: 275px;
+}
+.dev-container {
+	height: 100vh;
+}

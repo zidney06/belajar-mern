@@ -1,0 +1,61 @@
+membuat aplikasi toko
+fitur:
+- membeli barang
+- menambah barang
+- membuat fitur log in dab account
+- intinya iki tok
+
+/*jika sudah lumayan menguasai BE dan FE maka pakai project ini
+membuat sebuah aplikasi data sekolah*/
+
+fitur:
+- dapat memasukan data siswa
+- dapat mengabsen siswa
+- info keuangan (kas kelas, pembayaran lks)
+- info pelajaran dan pekerjaan rumah
+- dapat memanage sekolah (membuat sebuah field kelas dan sekolah)
+
+autentikasi:
+level 1
+- Siswa
+
+akses:
+- melihat dan menandai tugas yang diberikan oleh guru
+- memanage kas kelas
+- membuat surat izin tidak hadir
+- melhat nilai ujian
+
+level 2
+- guru
+
+akses: 
+- membuat dan memberikan tugas kepada siswa
+- mengabsen siswa tiap-tiap kelas
+- memasukan nilai ujian
+- menambahkan dan mengurangi nama siswa kedalam absen
+
+level 3
+- kepala sekolah
+
+akses:
+- menambha atau mengurangi data guru
+- memanage data guru dan siswa
+- membuat data sekolah
+
+level 4
+- Administrator
+
+akses:
+- All
+
+PAGES
+- dashboard
+memperlihatkan info role yang dimiliki
+- home
+data diri dan fitur yang dapat diakses. (info seperti kas, nilai, absen ditampilkan disini)
+- create page
+disini akan ditampilkan hal-hal yang bisa dibuat atau diedit berdasarkan level akses
+- Log in
+jangan lupa menambah fitur log in dan registrasi
+
+jika sudah selesai membuat BE lanjut membuat FE
