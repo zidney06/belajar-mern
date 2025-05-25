@@ -1,165 +1,167 @@
-import express from "express";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import User from "../models/userModel.js";
-import {
-	validationSession,
-	validationToken,
-} from "../middlewares/middleware.js";
+import express from 'express'
+import mongoose from 'mongoose'
+import bcrypt from 'bcryptjs'
+import jwt from 'jsonwebtoken'
+import User from '../models/userModel.js'
 
-const router = express.Router();
 
-router.post("/register", async (req, res) => {
-	const user = req.body;
-	const salt = await bcrypt.genSalt(10);
+const router = express.Router()
 
-	console.log(user.username, user.email, user.password);
+router.post('/register', async (req, res) => {
+  const user = req.body
+  const salt = await bcrypt.genSalt(10)
 
-	if ((!user.username, !user.email, !user.password)) {
-		return res.status(403).json({ message: "lengkapi datanya dulu!" });
-	}
+  console.log(user.username, user.email, user.password)
 
-	user.password = await bcrypt.hash(user.password, salt);
+  if(!user.username, !user.email, !user.password){
+    return res.status(403).json({ message: "lengkapi datanya dulu!" })
+  }
 
-	const newUser = new User({
-		username: user.username,
-		email: user.email,
-		password: user.password,
-	});
+  user.password = await bcrypt.hash(user.password, salt)
 
-	try {
-		// simpan data user baru ke DB
-		await newUser.save();
+  const newUser = new User({
+    username: user.username,
+    email: user.email,
+    password: user.password
+  })
 
-		res.status(201).json({
-			success: true,
-			message: "berhasil registrasi",
-			data: {
-				username: user.username,
-				email: user.email,
-				password: user.password,
-			},
-		});
-	} catch (err) {
-		console.error(err.message);
-		res.status(500).json({ success: false, messsage: "internal server error" });
-	}
-});
+  try {
+    // simpan data user baru ke DB
+    await newUser.save()
 
-router.post("/login", async (req, res) => {
-	if (!req.body.email || !req.body.password) {
-		return res.status(403).json({ message: "lengkapi datanya dulu!" });
-	}
-	try {
-		// cari apakah user ada di DB atau tidak
-		const user = await User.findOne({ email: req.body.email });
+    res.status(201).json({
+      success: true,
+      message: "berhasil registrasi",
+      data : {
+        username: user.username,
+        email: user.email,
+        password: user.password
+      }})
+  } catch (err) {
+    console.error(err.message)
+    res.status(500).json({success: false, messsage: "internal server error"})
+  }
+})
 
-		// kalau gak ada maka respon = 404
-		if (!user) {
-			return res.status(404).json({
-				message: `User dengan email ${req.body.email} tidak ditemukan`,
-			});
-		}
+router.post('/login', async (req, res) => {
+  if(!req.body.email || !req.body.password){
+    return res.status(403).json({ message: "lengkapi datanya dulu!" })
+  }
+  try {
+    // cari apakah user ada di DB atau tidak
+    const user = await User.findOne({email: req.body.email})
 
-		const isMatch = await bcrypt.compare(req.body.password, user.password);
+    // kalau gak ada maka respon = 404
+    if(!user){
+      return res.status(404).json({message: `User dengan email ${req.body.email} tidak ditemukan`})
+    }
 
-		// cek apakah password benar atau tidak
-		if (isMatch) {
-			// membuat id session
-			// req.session.tes muali bagian tes namanya bisa diubah tapi entah mengapa kalau dinamai id kok gak bisa
-			// untuk megset cookie pada express-session dilakukan dengan cara ini
-			req.session.data = {
-				id: user._id,
-				username: user.username,
-			}; // berarti yang disimpan itu ini
-			req.session.save((err) => {
-				if (err) {
-					console.log("e", err);
-				}
-			});
+    const isMatch = await bcrypt.compare(req.body.password, user.password)
 
-			console.log("login", req.session, res.cookie);
+    // cek apakah password benar atau tidak
+    if(isMatch){
+      // membuat id session
+      // req.session.tes muali bagian tes namanya bisa diubah tapi entah mengapa kalau dinamai id kok gak bisa
+      // untuk megset cookie pada express-session dilakukan dengan cara ini
+      req.session.data = {
+        id: user._id,
+        username: user.username,
+        email: user.email
+      } // berarti yang disimpan itu ini
+      req.session.save(err => {
+        if(err){
+          console.log('e', err)
+        }
+      })
 
-			// membuat autentikasi menggunakan jsonwebtoken
-			const payload = {
-				id: user._id,
-				username: user.username,
-			};
+      console.log('login' ,req.session, res.cookie)
 
-			const token = jwt.sign(payload, process.env.JWT_SECRET, {
-				expiresIn: 60 * 30,
-			});
+      // membuat autentikasi menggunakan jsonwebtoken
+      const payload = {
+        id: user._id,
+        username: user.username,
+        email: user.email
+      }
 
-			return res.status(200).json({
-				message: "user ditemukan dan berhasil login",
-				data: {
-					username: user.username,
-					_id: user._id,
-				},
-				token: token,
-			});
-		} else {
-			return res.status(401).json({ message: "password salah" });
-		}
-	} catch (err) {
-		console.error(err.message);
-		res.status(500).json({ success: false, message: "internal server error" });
-	}
-});
+      const token = jwt.sign(payload, process.env.JWT_SECRET, {expiresIn: 60 * 60 * 1})
+      
+      return res.status(200).json({
+        message: "user ditemukan dan berhasil login",
+        data: {
+          username: user.username,
+          email: user.email,
+          _id: user._id  
+        },
+        token: token
+      })
+    } else {
+      return res.status(401).json({message: "password salah"})
+    }
 
-router.post("/update", async (req, res, next) => {
-	console.log(req.session.data);
-	// mengupdate session dan cookie
-	// req.session.data.role = 'user'
-	const data = req.session.data;
-	const user = await User.findOne({ email: data.email });
-	if (!user) {
-		return res
-			.status(404)
-			.json({ message: `User dengan email ${req.body.email} tidak ditemukan` });
-	}
+  } catch (err) {
+    console.error(err.message)
+    res.status(500).json({success: false, message: "internal server error"})
+  }
+})
 
-	console.log(req.session.cookie.maxAge);
+router.post('/update', async (req, res, next) => {
+  console.log(req.session.data)
+  // mengupdate session dan cookie
+  // req.session.data.role = 'user'
+  const data = req.session.data
+  const user = await User.findOne({email: data.email})
+  if(!user){
+    return res.status(404).json({message: `User dengan email ${req.body.email} tidak ditemukan`})
+  }
 
-	// regenerate membuat sesi baru sekaligus menghapus sesi yang lama
-	req.session.regenerate((err) => {
-		if (err) {
-			return next();
-		}
-		console.log(req.session);
-		req.session.data = {
-			id: user._id,
-			username: user.username,
-			email: user.email,
-			role: "user",
-		};
-		req.session.save((err) => {
-			if (err) {
-				return next();
-			}
-		});
-	});
+  console.log(req.session.cookie.maxAge)
 
-	res.json({ message: "OK" });
-});
+  // regenerate membuat sesi baru sekaligus menghapus sesi yang lama
+  req.session.regenerate(err => {
+    if(err){
+      return next()
+    }
+    console.log(req.session)
+    req.session.data = {
+      id: user._id,
+      username: user.username,
+      email: user.email,
+      role: 'user'
+    }
+    req.session.save(err => {
+      if(err){
+        return next()
+      }
+    })
+  })
 
-router.post("/logout", (req, res) => {
-	// ini digunakan untuk menghaous sesi disisi server
-	req.session.destroy((err) => {
-		if (err) {
-			return res.status(500).json({ message: "gagal logout" });
-		}
-		res.clearCookie("connect.sid"); // ini digunakan untuk menghapus cookie di sisi client
-		res.json({ message: "berhasil logout" });
-	});
-});
+  res.json({message: 'OK'})
+})
 
-router.get("/tes", validationToken, (req, res) => {
-	console.log("account: ", req.userData.username);
-	res.json({
-		message: "berhasil",
-		data: req.userData,
-	});
-});
+// memperbarui sesi
+router.post('/logout', (req, res) => {
+  console.log('logout: ', req.session)
+  console.log(req.session.cookie.maxAge)
+  // ini digunakan untuk menghaous sesi disisi server
+  req.session.destroy(err => {
+    if(err){
+      return res.status(500).json({message: "gagal logout"})
+    }
+    res.clearCookie('connect.sid') // ini digunakan untuk menghapus cookie di sisi client
+    res.json({message: "berhasil logout"})
+  })
+})
 
-export default router;
+router.get('/account', (req, res) => {
+  console.log('account: ', req.session)
+  if(req.session.userId){
+    res.json({
+      message: 'hello id : ' + req.session.userId
+    })
+  }
+  else {
+    res.status(401).json({message: "login dulu wak"})
+  }
+})
+
+export default router
