@@ -1,35 +1,35 @@
-import {Routes, Route} from 'react-router-dom'
-import HomePage from './pages/HomePage'
-import CreatePage from './pages/CreatePage'
-import LoginPage from './pages/LoginPage'
-import NotFound from './pages/NotFound'
-import './styles/style.css'
-import {useEffect, useState} from 'react'
-import axios from 'axios'
-import {setInitial} from '../slices/productSlice'
-import {useDispatch} from 'react-redux'
-import Navbar from './components/Navbar';
-import Footer from './components/Footer'
+import { Routes, Route } from "react-router-dom";
+import HomePage from "./pages/HomePage";
+import CreatePage from "./pages/CreatePage";
+import LoginPage from "./pages/LoginPage";
+import NotFound from "./pages/NotFound";
+import "./styles/style.css";
+import { useEffect, useState } from "react";
+import { setInitial } from "../slices/productSlice";
+import { useDispatch } from "react-redux";
+import { getFetch } from "../utility/fetch";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
 
 function App() {
-	const dispatch = useDispatch()
+	const dispatch = useDispatch();
 
 	useEffect(() => {
-		axios.get('http://localhost:3000/api/product')
-		.then((res) => {
-			dispatch(setInitial(res.data.data))
-			console.log(res.data.data)
-		})
-		.catch((e) => {
-			console.log(e)
-		})
-	}, [])
+		getFetch("http://localhost:3000/api/product").then((res) => {
+			if (!res.success) {
+				return;
+			}
 
-	console.log('app')
+			dispatch(setInitial(res.data.data));
+			console.log(res.data.data);
+		});
+	}, []);
 
-  return (
-    <>
-    	<Navbar />
+	console.log("app");
+
+	return (
+		<>
+			<Navbar />
 			<Routes>
 				<Route path="/" element={<HomePage />} />
 				<Route path="/create" element={<CreatePage />} />
@@ -37,8 +37,8 @@ function App() {
 				<Route path="*" element={<NotFound />} />
 			</Routes>
 			<Footer />
-    </>
-  )
+		</>
+	);
 }
 
-export default App
+export default App;

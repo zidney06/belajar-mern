@@ -2,7 +2,10 @@ import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/userModel.js";
-import { validationToken } from "../middlewares/middleware.js";
+import {
+	validationSession,
+	validationToken,
+} from "../middlewares/middleware.js";
 
 const router = express.Router();
 
@@ -68,7 +71,6 @@ router.post("/login", async (req, res) => {
 			req.session.data = {
 				id: user._id,
 				username: user.username,
-				email: user.email,
 			}; // berarti yang disimpan itu ini
 			req.session.save((err) => {
 				if (err) {
@@ -82,18 +84,16 @@ router.post("/login", async (req, res) => {
 			const payload = {
 				id: user._id,
 				username: user.username,
-				email: user.email,
 			};
 
 			const token = jwt.sign(payload, process.env.JWT_SECRET, {
-				expiresIn: 60 * 60 * 1,
+				expiresIn: 60 * 30,
 			});
 
 			return res.status(200).json({
 				message: "user ditemukan dan berhasil login",
 				data: {
 					username: user.username,
-					email: user.email,
 					_id: user._id,
 				},
 				token: token,
@@ -144,8 +144,6 @@ router.post("/update", async (req, res, next) => {
 });
 
 router.post("/logout", (req, res) => {
-	console.log("logout: ", req.session);
-	console.log(req.session.cookie.maxAge);
 	// ini digunakan untuk menghaous sesi disisi server
 	req.session.destroy((err) => {
 		if (err) {
@@ -156,10 +154,11 @@ router.post("/logout", (req, res) => {
 	});
 });
 
-router.get("/account", validationToken, (req, res) => {
-	console.log("account: ", req.session);
+router.get("/tes", validationToken, (req, res) => {
+	console.log("account: ", req.userData.username);
 	res.json({
-		message: "hello id : " + req.userData.username,
+		message: "berhasil",
+		data: req.userData,
 	});
 });
 

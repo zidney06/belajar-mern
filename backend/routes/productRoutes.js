@@ -7,14 +7,6 @@ import { fileURLToPath } from "url";
 import Product from "../models/product.model.js";
 import { validationToken, storage } from "../middlewares/middleware.js";
 
-// pastikan folder upload sudah ada
-const uploadir = path.join(import.meta.dirname, "../uploads");
-
-// cek apakah folder uploads sudah ada atau belum
-if (!fs.existsSync(uploadir)) {
-	fs.mkdirSync(uploadir);
-}
-
 const upload = multer({ storage });
 
 const router = express.Router();
@@ -48,7 +40,7 @@ router.get("/my-product", validationToken, async (req, res) => {
 	}
 });
 
-router.post("/", upload.single("file"), async (req, res) => {
+router.post("/", validationToken, upload.single("file"), async (req, res) => {
 	// cek apakah user mengirimkan file atau tidak
 	if (!req.file) {
 		console.log(req.body);
@@ -57,23 +49,19 @@ router.post("/", upload.single("file"), async (req, res) => {
 
 	const product = JSON.parse(req.body.data);
 
-	product.imageUrl = `http://localhost:3000/folder/fotos/${req.file.filename}`;
-
 	console.log(product);
 
-	if (
-		!product.author ||
-		!product.price ||
-		!product.imageUrl ||
-		!product.title ||
-		!product.ISBN
-	) {
+	if (!product.author || !product.price || !product.title || !product.ISBN) {
 		return res
 			.status(403)
 			.json({ success: false, message: "tolong masukan data dengan benar" });
 	}
 
-	const newProduct = new Product({ ...product, imageName: req.file.filename });
+	const newProduct = new Product({
+		...product,
+		imageName: req.file.filename,
+		imageUrl: `http://localhost:3000/folder/fotos/${req.file.filename}`,
+	});
 
 	console.log(newProduct);
 
@@ -91,15 +79,15 @@ router.post("/", upload.single("file"), async (req, res) => {
 	}
 });
 
-router.put("/:id", upload.single("file"), async (req, res) => {
+router.put("/:id", validationToken, upload.single("file"), async (req, res) => {
 	const { id } = req.params;
 
-	const userData = req.session.data;
+	const userData = req.userData;
 
 	if (!mongoose.Types.ObjectId.isValid(id)) {
 		return res
 			.status(404)
-			.json({ succesa: false, message: "data tidak ditemukan" });
+			.json({ succesa: false, message: "Anda belum login" });
 	}
 
 	// cek apakah user memiliki sesi atau tidak
@@ -170,7 +158,7 @@ router.put("/:id", upload.single("file"), async (req, res) => {
 	}
 });
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", validationToken, async (req, res) => {
 	const { id } = req.params;
 	console.log(id);
 

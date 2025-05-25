@@ -16,7 +16,7 @@ const PORT = 3000;
 const isProduction = false;
 
 //penggunaan middleware cors agar saat dihit tidak menyebabkan error akses denied karena cors
-app.use(cors({ origin: "*", credentials: true })); //dengan ini mengizinkan semua domain untuk mengakses endpoint
+app.use(cors({ origin: "http://localhost:5173", credentials: true })); //dengan ini mengizinkan semua domain untuk mengakses endpoint
 // app.use(cors({origin: 'http://localhost:5173'}))
 /*
 jika ingin hanya origin tertentu saja
