@@ -54,10 +54,10 @@ app.use("/folder/fotos", express.static(path.join(__dirname, "uploads")));
 app.use("/api/product", productRoutes);
 app.use("/api/user", userRoutes);
 
-app.use(express.static(path.join(__dirname, "..", "frontend", "dist")));
-
 // production
 if (isProduction) {
+	app.use(express.static(path.join(__dirname, "..", "frontend", "dist")));
+
 	app.get("/", (req, res) => {
 		res.sendFile(path.join(__dirname, "..", "frontend", "dist", "index.html"));
 	});

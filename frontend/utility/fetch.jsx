@@ -1,10 +1,12 @@
 import axios from "axios";
 
+const baseUrl = import.meta.env.VITE_BASE_URL;
+
 export const getFetch = async (url) => {
 	const token = sessionStorage.getItem("token");
 
 	try {
-		const res = await axios.get(url, {
+		const res = await axios.get(baseUrl + url, {
 			headers: {
 				Authorization: `Bearer ${token}`,
 			},
@@ -22,7 +24,7 @@ export const postFetch = async (url, data) => {
 	const token = sessionStorage.getItem("token");
 
 	try {
-		const res = await axios.post(url, data, {
+		const res = await axios.post(baseUrl + url, data, {
 			headers: {
 				Authorization: `Bearer ${token}`,
 			},
@@ -40,7 +42,7 @@ export const putfetch = async (url, data) => {
 	const token = sessionStorage.getItem("token");
 
 	try {
-		const res = await axios.put(url, data, {
+		const res = await axios.put(baseUrl + url, data, {
 			headers: {
 				Authorization: `Bearer ${token}`,
 			},
@@ -58,7 +60,7 @@ export const delFetch = async (url) => {
 	const token = sessionStorage.getItem("token");
 
 	try {
-		const res = await axios.delete(url, {
+		const res = await axios.delete(baseUrl + url, {
 			headers: {
 				Authorization: `Bearer ${token}`,
 			},

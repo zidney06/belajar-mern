@@ -17,7 +17,7 @@ export default function LoginPage() {
 	const password = useRef("");
 
 	useEffect(() => {
-		getFetch("http://localhost:3000/api/user/tes").then((res) => {
+		getFetch("/user/tes").then((res) => {
 			if (!res.success) {
 				dispatch(delUser());
 
@@ -36,7 +36,7 @@ export default function LoginPage() {
 				password: password.current.value,
 			};
 
-			postFetch("http://localhost:3000/api/user/register", data).then((res) => {
+			postFetch("/user/register", data).then((res) => {
 				if (!res.success) {
 					alert(err.response.data.message);
 
@@ -49,7 +49,7 @@ export default function LoginPage() {
 				password: password.current.value,
 			};
 
-			postFetch("http://localhost:3000/api/user/login", data).then((res) => {
+			postFetch("/user/login", data).then((res) => {
 				if (!res.success) {
 					alert(res.response.data.message);
 
@@ -65,7 +65,7 @@ export default function LoginPage() {
 		}
 	};
 	const hndlLogout = () => {
-		postFetch("http://localhost:3000/api/user/logout", {}).then((res) => {
+		postFetch("/user/logout", {}).then((res) => {
 			if (!res.success) {
 				return;
 			}

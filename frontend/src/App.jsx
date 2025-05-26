@@ -15,7 +15,7 @@ function App() {
 	const dispatch = useDispatch();
 
 	useEffect(() => {
-		getFetch("http://localhost:3000/api/product").then((res) => {
+		getFetch("/product").then((res) => {
 			if (!res.success) {
 				return;
 			}
