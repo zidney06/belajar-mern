@@ -6,12 +6,18 @@
     "server": "nodemon ./backend/server.js",
     "build": "npm i && npm i --prefix frontend && npm run build --prefix frontend",
     "start": "node backend/server.js",
-    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest"
+    "test": "jest"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.[t|j]sx?$": "babel-jest"
+    }
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
+  "type": "module",
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "body-parser": "^2.2.0",
@@ -25,7 +31,9 @@
     "multer": "^1.4.5-lts.2"
   },
   "devDependencies": {
-    "@babel/plugin-transform-modules-commonjs": "^7.27.1",
+    "@babel/preset-env": "^7.27.2",
+    "babel-jest": "^30.0.0-beta.3",
+    "babel-plugin-transform-import-meta": "^2.3.2",
     "cross-env": "^7.0.3",
     "jest": "^29.7.0",
     "nodemon": "^3.1.9",

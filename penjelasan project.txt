@@ -15,7 +15,7 @@ fitur:
 - info pelajaran dan pekerjaan rumah
 - dapat memanage sekolah (membuat sebuah field kelas dan sekolah)
 
-autentikasi:
+otorisasi:
 level 1
 - Siswa
 
