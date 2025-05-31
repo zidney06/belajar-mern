@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const skemaBarang = new mongoose.Schema(
+export const skemaBarang = new mongoose.Schema(
 	{
 		title: {
 			type: String,

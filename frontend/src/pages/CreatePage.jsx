@@ -16,6 +16,7 @@ import {
 export default function CreatePage() {
 	const dispatch = useDispatch();
 	const { data, products } = useSelector((state) => state.user.value);
+	const [orderList, setOrderList] = useState([]);
 
 	const [title, setTitle] = useState("");
 	const [author, setAuthor] = useState("");
@@ -29,7 +30,7 @@ export default function CreatePage() {
 	const [productId, setProductId] = useState(null);
 
 	useEffect(() => {
-		getFetch("/product/my-product").then((res) => {
+		getFetch("/user/user-product").then((res) => {
 			if (!res.success) {
 				dispatch(setUser(null));
 				dispatch(setUserProducts([]));
@@ -37,7 +38,10 @@ export default function CreatePage() {
 				return;
 			}
 
-			dispatch(setUserProducts(res.data.data));
+			console.log(res);
+			dispatch(setUserProducts(res.data.products));
+			console.log(res.data.orderList);
+			setOrderList(res.data.orderList);
 		});
 	}, []);
 
@@ -219,7 +223,36 @@ export default function CreatePage() {
 		setIsEdit(false);
 	};
 
-	console.log(products);
+	const hndlRespons = (respons, index) => {
+		console.log("res");
+		postFetch("/user/respons", { respons: respons, index: index }).then(
+			(res) => {
+				if (!res.success) {
+					console.log("res 3");
+					return;
+				}
+
+				console.log("2");
+				setOrderList(
+					orderList.filter((item, i) => {
+						if (i === index) {
+							return;
+						}
+
+						return item;
+					})
+				);
+
+				if (respons) {
+					alert("Permintaan diterima");
+				} else {
+					alert("Permintaan ditolak");
+				}
+			}
+		);
+	};
+
+	console.log(orderList);
 
 	if (products.length == 0 && !data) {
 		return (
@@ -397,6 +430,33 @@ export default function CreatePage() {
 										onClick={() => hndlEdit(product)}
 									>
 										Edit
+									</button>
+								</div>
+							</div>
+						</div>
+					))}
+				</div>
+			</div>
+			<div className="my-3 border rounded p-1">
+				<h4>Daftar permintaan pembelian</h4>
+				<div className="container-fluid d-flex overflow-auto p-2">
+					{orderList.map((product, i) => (
+						<div className="card dev-card mx-1" key={i}>
+							<div className="card-body p-1">
+								<h5 className="card-title">{product.title}</h5>
+								{/* aku masih bingung logic membeli barang mau dibikim gimana */}
+								<div className="d-flex justify-content-between">
+									<button
+										className="btn btn-danger"
+										onClick={() => hndlRespons(false, i)}
+									>
+										Tolak
+									</button>
+									<button
+										className="btn btn-info"
+										onClick={() => hndlRespons(true, i)}
+									>
+										Terima
 									</button>
 								</div>
 							</div>

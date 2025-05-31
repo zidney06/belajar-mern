@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import bcrypt from "bcryptjs";
+import { skemaBarang } from "./product.model.js";
 
 const userSchema = new mongoose.Schema(
 	{
@@ -14,6 +14,9 @@ const userSchema = new mongoose.Schema(
 		password: {
 			type: String,
 			required: true,
+		},
+		orderList: {
+			type: [skemaBarang],
 		},
 	},
 	{

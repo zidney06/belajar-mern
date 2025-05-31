@@ -2,10 +2,65 @@ import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/userModel.js";
+import Product from "../models/product.model.js";
 import { validationToken } from "../middlewares/middleware.js";
 
 const router = express.Router();
 
+router.get("/user-product", validationToken, async (req, res) => {
+	const userData = req.userData;
+
+	if (userData || req.body) {
+		try {
+			const products = await Product.find({ ownerId: userData.id });
+			const user = await User.findById({ _id: userData.id });
+
+			if (!user || !products) {
+				res.status(404).json({ message: "gagal" });
+			}
+
+			console.log(user, products);
+
+			res.json({
+				message: "hello: " + userData.username,
+				products: products,
+				orderList: user.orderList,
+			});
+		} catch (err) {
+			console.log(err);
+			res.status(500).json({ message: "gagal" });
+		}
+	} else {
+		res.status(401).json({ message: "login dulu wak" });
+	}
+});
+
+router.post("/respons", validationToken, async (req, res) => {
+	const { respons } = req.body;
+	const { index } = req.body;
+	const userData = req.userData;
+
+	try {
+		const user = await User.findOne({ _id: userData.id });
+
+		console.log(user);
+
+		if (user.orderList.length > index) {
+			user.orderList.splice(index, 1);
+
+			await user.save();
+
+			if (respons) {
+				res.status(200).json({ message: "Permintaan diterima" });
+			} else {
+				res.status(200).json({ message: "Permintaan ditolak!" });
+			}
+		}
+	} catch (err) {
+		console.log(err);
+		res.status(500).json({ message: "ggal" });
+	}
+});
 router.post("/register", async (req, res) => {
 	const user = req.body;
 	const salt = await bcrypt.genSalt(10);
@@ -65,18 +120,17 @@ router.post("/login", async (req, res) => {
 			// membuat id session
 			// req.session.tes muali bagian tes namanya bisa diubah tapi entah mengapa kalau dinamai id kok gak bisa
 			// untuk megset cookie pada express-session dilakukan dengan cara ini
-			req.session.data = {
-				id: user._id,
-				username: user.username,
-				email: user.email,
-			}; // berarti yang disimpan itu ini
-			req.session.save((err) => {
-				if (err) {
-					console.log("e", err);
-				}
-			});
 
-			console.log("login", req.session, res.cookie);
+			// req.session.data = {
+			// 	id: user._id,
+			// 	username: user.username,
+			// 	email: user.email,
+			// }; // berarti yang disimpan itu ini
+			// req.session.save((err) => {
+			// 	if (err) {
+			// 		console.log("e", err);
+			// 	}
+			// });
 
 			// membuat autentikasi menggunakan jsonwebtoken
 			const payload = {
@@ -120,9 +174,10 @@ router.post("/logout", (req, res) => {
 	});
 });
 
-router.get("/tes", validationToken, (req, res) => {
+router.get("/user-info", validationToken, (req, res) => {
 	res.status(200).json({
 		message: "Oke",
+		isLogin: true,
 	});
 });
 

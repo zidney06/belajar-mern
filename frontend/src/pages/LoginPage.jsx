@@ -15,9 +15,10 @@ export default function LoginPage() {
 	const username = useRef("");
 	const email = useRef("");
 	const password = useRef("");
+	const [isLogin, setislogin] = useState(false);
 
 	useEffect(() => {
-		getFetch("/user/tes").then((res) => {
+		getFetch("/user/user-info").then((res) => {
 			if (!res.success) {
 				dispatch(delUser());
 
@@ -25,6 +26,7 @@ export default function LoginPage() {
 			}
 
 			console.log(res);
+			setislogin(res.data.isLogin);
 		});
 	}, []);
 
@@ -71,6 +73,7 @@ export default function LoginPage() {
 			}
 
 			dispatch(delUser());
+			setislogin(false);
 			sessionStorage.removeItem("token");
 		});
 	};
@@ -123,7 +126,7 @@ export default function LoginPage() {
 					<button className="btn btn-outline-info" onClick={hndlSubmit}>
 						{isRegister ? "Submit" : "Login"}
 					</button>
-					{!isRegister && user && (
+					{!isRegister && isLogin && (
 						<button className="btn btn-outline-info" onClick={hndlLogout}>
 							Logout
 						</button>

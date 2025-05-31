@@ -4,40 +4,14 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
+import { validationToken, storage } from "../middlewares/middleware.js";
+import User from "../models/userModel.js";
 import Product from "../models/product.model.js";
-import { validationToken } from "../middlewares/middleware.js";
-
-// pastikan folder upload sudah ada
-const uploadir = path.join(import.meta.dirname, "../uploads");
-
-if (!fs.existsSync(uploadir)) {
-	fs.mkdirSync(uploadir);
-}
-
-// konfigurasi penyimpanan multer
-const storage = multer.diskStorage({
-	destination: (req, res, cb) => {
-		cb(null, uploadir);
-	},
-	filename: (req, file, cb) => {
-		// beri nama unik pada file
-		console.log(req.session.data);
-		if (req.session.data) {
-			console.log(req.session.data, "multer");
-			const uniqueName =
-				Date.now() + req.session.data.id + path.extname(file.originalname);
-			cb(null, uniqueName);
-		} else {
-			cb(null, file.originalname);
-		}
-	},
-});
 
 const upload = multer({ storage });
 
 const router = express.Router();
 
-// cek dulu apakah request memiliki token atau tidak
 router.get("/", async (req, res) => {
 	try {
 		const products = await Product.find({}); //kosong artinya kita mengambil semua data yang ada pada db
@@ -49,22 +23,8 @@ router.get("/", async (req, res) => {
 	}
 });
 
-// protected route
-router.get("/my-product", validationToken, async (req, res) => {
-	const userData = req.session.data;
-	if (userData) {
-		const products = await Product.find({ ownerId: userData.id });
-		res.json({
-			message: "hello: " + userData.username,
-			data: products,
-		});
-	} else {
-		res.status(401).json({ message: "login dulu wak" });
-	}
-});
-
-router.post("/", upload.single("file"), async (req, res) => {
-	const userData = req.session.data;
+router.post("/", validationToken, upload.single("file"), async (req, res) => {
+	const userData = req.userData;
 
 	// cek apakah user memiliki sesi atau tidak
 	if (!userData) {
@@ -113,10 +73,32 @@ router.post("/", upload.single("file"), async (req, res) => {
 	}
 });
 
-router.put("/:id", upload.single("file"), async (req, res) => {
+// pindahkan route ini ke userRoutes untuk mengirimkan data pesanan milik akun bersangkutan
+router.post("/buy-product", validationToken, async (req, res) => {
+	const buyerdata = req.userData;
+	const productSelected = req.body;
+
+	console.log(req.body);
+
+	try {
+		const dataProduct = await Product.findById(productSelected._id);
+		const seller = await User.findById(productSelected.ownerId);
+
+		seller.orderList.push(dataProduct);
+
+		await seller.save();
+
+		res.status(200).json({ message: "Pembelian telah diterima!" });
+	} catch (err) {
+		console.log(err);
+		res.status(500).json({ message: "Terjadi kesalahan!" });
+	}
+});
+
+router.put("/:id", validationToken, upload.single("file"), async (req, res) => {
 	const { id } = req.params;
 
-	const userData = req.session.data;
+	const userData = req.userData;
 
 	if (!mongoose.Types.ObjectId.isValid(id)) {
 		return res
