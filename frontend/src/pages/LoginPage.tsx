@@ -2,8 +2,9 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { setUser, delUser } from "../../slices/userSlice.ts";
-import { getFetch, postFetch } from "../../utility/fetch.jsx";
+import { getFetch, postFetch } from "../../utility/fetch.ts";
 import type { RootState } from "../../store/store.tsx";
+import { isAxiosError } from "axios";
 
 export default function LoginPage() {
 	const { data } = useSelector((state: RootState) => state.user.value);
@@ -58,8 +59,20 @@ export default function LoginPage() {
 					return;
 				}
 				if (!res.success) {
-					alert(res.response.data.message);
-					resetInput();
+					if (isAxiosError(res.err)) {
+						// Cek jika ada response dari server (status 4xx/5xx)
+						if (res.err.response) {
+							// ✅ Akses aman: res.err.response.data.message
+							alert(res.err.response.data.message);
+						} else {
+							// Network Error murni atau Timeout
+							alert("Kesalahan Jaringan. Cek koneksi Anda.");
+						}
+					} else {
+						// Error non-Axios lainnya
+						alert("Terjadi kesalahan saat memproses login.");
+					}
+
 					return;
 				}
 				console.log("berhasil");
@@ -76,15 +89,29 @@ export default function LoginPage() {
 			};
 
 			postFetch("/user/login", data).then((res) => {
+				// 1. Kasus Gagal (res.success === false)
 				if (!res.success) {
-					alert(res.response.data.message);
+					// Cek jika error yang dibungkus adalah AxiosError
+					// Asumsi: AxiosError disimpan di res.error
+					if (isAxiosError(res.err)) {
+						// Cek jika ada response dari server (status 4xx/5xx)
+						if (res.err.response) {
+							// ✅ Akses aman: res.err.response.data.message
+							alert(res.err.response.data.message);
+						} else {
+							// Network Error murni atau Timeout
+							alert("Kesalahan Jaringan. Cek koneksi Anda.");
+						}
+					} else {
+						// Error non-Axios lainnya
+						alert("Terjadi kesalahan saat memproses login.");
+					}
 
 					return;
 				}
 
-				// simpan token di sessionStorage
+				// 2. Kasus Sukses (res.success === true)
 				sessionStorage.setItem("token", res.data.token);
-
 				dispatch(setUser(res.data.data));
 				navigate("/");
 			});

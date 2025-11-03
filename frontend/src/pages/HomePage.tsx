@@ -1,4 +1,4 @@
-import { getFetch } from "../../utility/fetch.jsx";
+import { getFetch } from "../../utility/fetch.ts";
 import ProductList from "../components/ProductList.tsx";
 import { useEffect, useState } from "react";
 

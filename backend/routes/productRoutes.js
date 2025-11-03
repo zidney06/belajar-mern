@@ -79,11 +79,11 @@ router.post("/", validationToken, upload.single("file"), async (req, res) => {
 
 // pindahkan route ini ke userRoutes untuk mengirimkan data pesanan milik akun bersangkutan
 // perbaiki ini
-router.post("/buy-product/:productId", validationToken, async (req, res) => {
+router.post("/buy-product", validationToken, async (req, res) => {
 	const user = req.userData;
-	const { productId } = req.params;
+	const { productId } = req.body;
 
-	console.log(user);
+	console.log(productId);
 
 	try {
 		const dataProduct = await Product.findById(productId);

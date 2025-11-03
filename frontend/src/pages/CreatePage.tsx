@@ -17,7 +17,7 @@ import {
 	postFetch,
 	putfetch,
 	delFetch,
-} from "../../utility/fetch.jsx";
+} from "../../utility/fetch.ts";
 import {
 	setUser,
 	setUserProducts,
@@ -27,6 +27,7 @@ import {
 } from "../../slices/userSlice.ts";
 import { validation } from "../../utility/helper.ts";
 import type { RootState } from "../../store/store.tsx";
+import { isAxiosError } from "axios";
 
 export default function CreatePage() {
 	const dispatch = useDispatch();
@@ -150,7 +151,20 @@ export default function CreatePage() {
 
 		putfetch(route, formData).then((res) => {
 			if (!res.success) {
-				alert(res.response.data.message);
+				if (isAxiosError(res.err)) {
+					// Cek jika ada response dari server (status 4xx/5xx)
+					if (res.err.response) {
+						// ✅ Akses aman: res.err.response.data.message
+						alert(res.err.response.data.msg);
+					} else {
+						// Network Error murni atau Timeout
+						alert("Kesalahan Jaringan. Cek koneksi Anda.");
+					}
+				} else {
+					// Error non-Axios lainnya
+					alert("Terjadi kesalahan saat memproses login.");
+				}
+
 				return;
 			}
 
@@ -199,7 +213,19 @@ export default function CreatePage() {
 
 		postFetch("/product", formData).then((res) => {
 			if (!res.success) {
-				alert(res.response.data.message);
+				if (isAxiosError(res.err)) {
+					// Cek jika ada response dari server (status 4xx/5xx)
+					if (res.err.response) {
+						// ✅ Akses aman: res.err.response.data.message
+						alert(res.err.response.data.msg);
+					} else {
+						// Network Error murni atau Timeout
+						alert("Kesalahan Jaringan. Cek koneksi Anda.");
+					}
+				} else {
+					// Error non-Axios lainnya
+					alert("Terjadi kesalahan saat memproses login.");
+				}
 
 				return;
 			}

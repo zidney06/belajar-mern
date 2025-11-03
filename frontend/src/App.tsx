@@ -8,7 +8,7 @@ import "./styles/style.css";
 import { useEffect, useState } from "react";
 import { setInitial } from "../slices/productSlice.ts";
 import { useDispatch } from "react-redux";
-import { getFetch } from "../utility/fetch.jsx";
+import { getFetch } from "../utility/fetch.ts";
 import Navbar from "./components/Navbar.tsx";
 import Footer from "./components/Footer.tsx";
 import "bootstrap/dist/css/bootstrap.min.css";

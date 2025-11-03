@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { delFetch, getFetch } from "../../utility/fetch.jsx";
+import { delFetch, getFetch } from "../../utility/fetch.ts";
 import { useNavigate } from "react-router-dom";
 
 interface Item {
