@@ -1,0 +1,11 @@
+// konfigurasi untuk jest, supertest, dan import.meta (jika menggunakannya)
+{
+  "presets": [
+    ["@babel/preset-env", {
+      "targets": {"node": "current"}
+    }]
+  ],
+  "plugins": [
+    "babel-plugin-transform-import-meta"
+  ]
+}
