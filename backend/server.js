@@ -8,6 +8,7 @@ import { fileURLToPath } from "url";
 import { connectDB } from "./config/db.js";
 import productRoutes from "./routes/productRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import rateLimit from "express-rate-limit";
 
 dotenv.config();
 
@@ -39,8 +40,15 @@ app.use(
 		cookie: {
 			maxAge: 1000 * 60 * 30,
 		}, // dengan ini session akan expired dalam, satu jam (ini pakai milisecond)
-	})
+	}),
 );
+// limit request
+const limiter = rateLimit({
+	windowMs: 1 * 60 * 1000,
+	max: 100,
+	standartHeaders: true,
+	message: "Too many requests from this IP, please try again later!",
+});
 
 // Mendapatkan direktori saat ini menggunakan ES module syntax
 const __filename = fileURLToPath(import.meta.url);
@@ -51,8 +59,10 @@ const __dirname = path.dirname(__filename);
 // maka dapat diakses melalui URL: http://localhost:3000/fotos/gambar.jpg
 app.use("/folder/fotos", express.static(path.join(__dirname, "uploads")));
 
-app.use("/api/product", productRoutes);
-app.use("/api/user", userRoutes);
+app.use("/api/product", limiter, productRoutes);
+app.use("/api/user", limiter, userRoutes);
+
+console.log("coy");
 
 // production
 if (isProduction) {
@@ -63,6 +73,7 @@ if (isProduction) {
 	});
 } else {
 	app.get("/", (req, res) => {
+		console.log("Pengunjung");
 		res.send("Selamat datang!");
 	});
 }

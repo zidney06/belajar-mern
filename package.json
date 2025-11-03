@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "server": "nodemon ./backend/server.js",
+    "dev": "nodemon ./backend/server.js",
     "build": "npm i && npm i --prefix frontend && npm run build --prefix frontend",
     "start": "node backend/server.js",
     "test": "jest"
@@ -25,6 +25,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "express-rate-limit": "^8.1.0",
     "express-session": "^1.18.1",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.12.1",

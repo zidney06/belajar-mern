@@ -12,18 +12,19 @@ router.get("/user-product", validationToken, async (req, res) => {
 
 	if (userData || req.body) {
 		try {
-			const products = await Product.find({ ownerId: userData.id });
-			const user = await User.findById({ _id: userData.id });
+			const user = await User.findById({ _id: userData.id }).populate(
+				"userProducts",
+			);
 
-			if (!user || !products) {
+			if (!user) {
 				res.status(404).json({ message: "gagal" });
 			}
 
-			console.log(user, products);
+			console.log(user);
 
 			res.json({
-				message: "hello: " + userData.username,
-				products: products,
+				username: userData.username,
+				products: user.userProducts,
 				orderList: user.orderList,
 			});
 		} catch (err) {
@@ -34,38 +35,115 @@ router.get("/user-product", validationToken, async (req, res) => {
 		res.status(401).json({ message: "login dulu wak" });
 	}
 });
-
-router.post("/respons", validationToken, async (req, res) => {
-	const { respons } = req.body;
-	const { index } = req.body;
+router.get("/purchase-history", validationToken, async (req, res) => {
 	const userData = req.userData;
 
 	try {
-		const user = await User.findOne({ _id: userData.id });
+		const user = await User.findById(userData.id);
 
-		console.log(user);
+		console.log(user.purchaseItems);
+		if (!user) {
+			return res.status(404).json({
+				msg: "User tidak ditemukan",
+			});
+		}
 
-		if (user.orderList.length > index) {
-			user.orderList.splice(index, 1);
+		res.status(200).json({
+			msg: "Berhasil",
+			data: user.purchaseItems,
+		});
+	} catch (err) {
+		console.log(err);
+		res.status(500).json({
+			msg: "Internal server error",
+		});
+	}
+});
+/*
+fitur membeli barang itu hanya untuk memberitahu seller kalau ada user yang beli
+kalau bisa, pembeli diberi tahu barang yang usdah disetujui
+*/
+router.post("/respons", validationToken, async (req, res) => {
+	const { respons, product, buyerId, orderId } = req.body;
+	const userData = req.userData;
 
-			await user.save();
+	try {
+		const seller = await User.findById(userData.id);
+		const buyer = await User.findById(buyerId);
 
-			if (respons) {
-				res.status(200).json({ message: "Permintaan diterima" });
-			} else {
-				res.status(200).json({ message: "Permintaan ditolak!" });
-			}
+		if (!seller || !buyer) {
+			return res.status(404).json({
+				msg: "Seller atau buyer tidak ditemukan",
+			});
+		}
+
+		console.log(seller.orderList, orderId, 1);
+
+		if (respons) {
+			// hapus permintaan pembelian buyer dari list
+			seller.orderList = seller.orderList.filter(
+				(item) => item._id.toString() !== orderId.toString(),
+			);
+
+			// update status pembelian
+			buyer.purchaseItems = buyer.purchaseItems.map((item) => {
+				if ((item.item._id.toString(), product._id.toString())) {
+					item.status = "completed";
+					return item;
+				}
+				return item;
+			});
+
+			console.log(buyer.purchaseItems, 2);
+
+			await Promise.all([buyer.save(), seller.save()]);
+			res.status(200).json({
+				msg: "Permintaan diterima",
+				data: {
+					orderId,
+				},
+			});
+		} else {
+			// update status pembelian
+			buyer.purchaseItems = buyer.purchaseItems.map((item) => {
+				console.log(item.item._id.toString(), product._id.toString());
+				if ((item.item._id.toString(), product._id.toString())) {
+					item.status = "cancelled";
+					return item;
+				}
+				return item;
+			});
+
+			// hapus permintaan pembelian buyer dari list
+			seller.orderList = seller.orderList.filter(
+				(item) => item._id.toString() !== orderId.toString(),
+			);
+
+			console.log(buyer.purchaseItems, 2);
+
+			await Promise.all([buyer.save(), seller.save()]);
+			res.status(200).json({
+				msg: "Permintaan ditolak",
+				data: {
+					orderId,
+				},
+			});
 		}
 	} catch (err) {
 		console.log(err);
-		res.status(500).json({ message: "ggal" });
+		res.status(500).json({ msg: "Terjadi masalah" });
 	}
 });
 router.post("/register", async (req, res) => {
 	const user = req.body;
 	const salt = await bcrypt.genSalt(10);
 
-	console.log(user.username, user.email, user.password);
+	// cek apakah user sudah ada atau belum
+	const existingUser = await User.findOne({ email: user.email });
+
+	if (existingUser) {
+		return res.status(409).json({ message: "Email sudah digunakan!" });
+	}
 
 	if ((!user.username, !user.email, !user.password)) {
 		return res.status(403).json({ message: "lengkapi datanya dulu!" });
@@ -162,8 +240,6 @@ router.post("/login", async (req, res) => {
 
 // memperbarui sesi
 router.post("/logout", (req, res) => {
-	console.log("logout: ", req.session);
-	console.log(req.session.cookie.maxAge);
 	// ini digunakan untuk menghaous sesi disisi server
 	req.session.destroy((err) => {
 		if (err) {

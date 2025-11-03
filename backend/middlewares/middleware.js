@@ -13,7 +13,9 @@ export function validationToken(req, res, next) {
 
 	const token = authorization.split(" ")[1];
 
-	console.log(authorization);
+	if (!token || token === "null" || token === "undefined") {
+		return res.status(401).json({ msg: "Token diperlukan" });
+	}
 
 	try {
 		const jwtDecoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -28,6 +30,12 @@ export function validationToken(req, res, next) {
 	next();
 }
 
+/*
+Hal baru: salah satu hal yang membuat operasi I / O file lambat saat ,engggunakan multer
+kemungkinan besar adalah interupsi dari antivirus. setelah mengecualikan folder tempat
+di mana file dismpan, pemrosesan dapatberjalan dengan cepat
+*/
+
 // pastikan folder upload sudah ada
 const uploadir = path.join(import.meta.dirname, "../uploads");
 
@@ -39,16 +47,13 @@ if (!fs.existsSync(uploadir)) {
 // konfigurasi penyimpanan multer
 export const storage = multer.diskStorage({
 	destination: (req, res, cb) => {
-		cb(null, uploadir);
+		return cb(null, uploadir);
 	},
 	filename: (req, file, cb) => {
-		// beri nama unik pada file
-		console.log(req.userData);
-		if (req.session.data) {
-			console.log(req.userData, "multer");
+		if (req.userData) {
 			const uniqueName =
 				Date.now() + req.userData.id + path.extname(file.originalname);
-			cb(null, uniqueName);
+			return cb(null, uniqueName);
 		}
 	},
 });

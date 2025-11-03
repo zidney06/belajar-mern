@@ -26,41 +26,45 @@ router.get("/", async (req, res) => {
 router.post("/", validationToken, upload.single("file"), async (req, res) => {
 	const userData = req.userData;
 
-	// cek apakah user memiliki sesi atau tidak
-	if (!userData) {
-		res.status(401).json({ message: "Sesi anda telah habis" });
-	}
-
-	// cek apakah user mengirimkan file atau tidak
-	if (!req.file) {
-		console.log(req.body);
-		return res.status(400).json({ message: "no file uploaded" });
-	}
-
-	const product = JSON.parse(req.body.data);
-
-	product.imageUrl = `http://localhost:3000/folder/fotos/${req.file.filename}`;
-
-	console.log(product);
-
-	if (
-		!product.author ||
-		!product.price ||
-		!product.imageUrl ||
-		!product.title ||
-		!product.ISBN
-	) {
-		return res
-			.status(403)
-			.json({ success: false, message: "tolong masukan data dengan benar" });
-	}
-
-	const newProduct = new Product({ ...product, imageName: req.file.filename });
-
-	console.log(newProduct);
-
 	try {
-		await newProduct.save();
+		const user = await User.findById(userData.id);
+
+		if (!user) {
+			return res.status(401).json({ message: "User tidak ditemukan!" });
+		}
+
+		// cek apakah user mengirimkan file atau tidak
+		if (!req.file) {
+			return res.status(400).json({ message: "no file uploaded" });
+		}
+
+		const product = JSON.parse(req.body.data);
+
+		product.imageUrl = `http://localhost:3000/folder/fotos/${req.file.filename}`;
+
+		if (
+			!product.author ||
+			!product.price ||
+			!product.imageUrl ||
+			!product.title ||
+			!product.ISBN
+		) {
+			return res
+				.status(403)
+				.json({ success: false, message: "tolong masukan data dengan benar" });
+		}
+
+		const newProduct = new Product({
+			...product,
+			imageName: req.file.filename,
+			ownerId: user._id,
+		});
+
+		// masukan id barang baru ke dalam array produk milik user
+		user.userProducts.push(newProduct._id);
+
+		await Promise.all([newProduct.save(), user.save()]);
+
 		res.status(201).json({
 			success: true,
 			data: newProduct,
@@ -74,61 +78,84 @@ router.post("/", validationToken, upload.single("file"), async (req, res) => {
 });
 
 // pindahkan route ini ke userRoutes untuk mengirimkan data pesanan milik akun bersangkutan
-router.post("/buy-product", validationToken, async (req, res) => {
-	const buyerdata = req.userData;
-	const productSelected = req.body;
+// perbaiki ini
+router.post("/buy-product/:productId", validationToken, async (req, res) => {
+	const user = req.userData;
+	const { productId } = req.params;
 
-	console.log(req.body);
+	console.log(user);
 
 	try {
-		const dataProduct = await Product.findById(productSelected._id);
-		const seller = await User.findById(productSelected.ownerId);
+		const dataProduct = await Product.findById(productId);
 
-		seller.orderList.push(dataProduct);
+		if (!dataProduct) {
+			return res.status(404).json({
+				msg: "Produk tidak ditemukan",
+			});
+		}
 
-		await seller.save();
+		const seller = await User.findById(dataProduct.ownerId);
+		const buyer = await User.findById(user.id);
 
-		res.status(200).json({ message: "Pembelian telah diterima!" });
+		if (!seller || !buyer) {
+			return res.status(404).json({
+				msg: "Penjual atau pembeli tidak ditemukan",
+			});
+		}
+
+		// pastikan pembeli bukan penjual itu sendiri
+		if (buyer.username === seller.username) {
+			return res.status(400).json({
+				msg: "Anda tidak dapat membeli produk sendiri",
+			});
+		}
+
+		seller.orderList.push({
+			buyerId: user.id,
+			sellerId: seller._id,
+			item: dataProduct,
+		});
+
+		buyer.purchaseItems.push({
+			item: dataProduct,
+			status: "pending",
+			sellerId: seller._id,
+		});
+
+		await Promise.all([seller.save(), buyer.save()]);
+
+		res.status(200).json({ msg: "Pembelian telah diterima!" });
 	} catch (err) {
 		console.log(err);
-		res.status(500).json({ message: "Terjadi kesalahan!" });
+		res.status(500).json({ msg: "Terjadi kesalahan!" });
 	}
 });
 
-router.put("/:id", validationToken, upload.single("file"), async (req, res) => {
-	const { id } = req.params;
-
-	const userData = req.userData;
-
-	if (!mongoose.Types.ObjectId.isValid(id)) {
-		return res
-			.status(404)
-			.json({ succesa: false, message: "data tidak ditemukan" });
-	}
-
-	// cek apakah user memiliki sesi atau tidak
-	if (!userData) {
-		return res.status(401).json({ message: "Sesi anda telah habis" });
-	}
-
-	// cek apakah user mengirimkan file atau tidak
-	if (!req.file) {
-		console.log("tidak ada file");
-
+router.put(
+	"/update-without-file/:id",
+	validationToken,
+	upload.none(), // kalo gak upload file
+	async (req, res) => {
+		const { id } = req.params;
+		const userData = req.userData;
 		const newProduct = JSON.parse(req.body.data);
 
-		console.log(newProduct);
-
-		if (!mongoose.Types.ObjectId.isValid(id)) {
-			return res
-				.status(404)
-				.json({ succesa: false, message: "data tidak ditemukan" });
-		}
+		console.log("tanpa ada file", newProduct);
 
 		try {
+			const existedProduct = await Product.findById(id);
+
+			if (!existedProduct) {
+				return res
+					.status(404)
+					.json({ succesa: false, message: "data tidak ditemukan" });
+			}
+
 			const updatedProduct = await Product.findByIdAndUpdate(id, newProduct, {
 				new: true,
 			});
+
+			console.log(updatedProduct);
 			res.status(201).json({ success: true, data: updatedProduct });
 		} catch (e) {
 			console.log("terjadi error: " + e.message);
@@ -136,15 +163,35 @@ router.put("/:id", validationToken, upload.single("file"), async (req, res) => {
 				.status(500)
 				.json({ success: false, messsage: "internal server error" });
 		}
-	} else {
+	},
+);
+
+router.put(
+	"/update-with-file/:id",
+	validationToken,
+	upload.single("file"),
+	async (req, res) => {
+		const { id } = req.params;
+
+		const userData = req.userData;
+
+		if (!mongoose.Types.ObjectId.isValid(id)) {
+			return res
+				.status(404)
+				.json({ succesa: false, message: "data tidak ditemukan" });
+		}
+
+		// cek apakah user memiliki sesi atau tidak
+		if (!userData) {
+			return res.status(401).json({ message: "Sesi anda telah habis" });
+		}
+
 		const newProduct = JSON.parse(req.body.data);
 
 		try {
-			const __filename = fileURLToPath(import.meta.url);
-			const __dirname = path.dirname(__filename);
 			const filePath = path.join(
-				__dirname,
-				`../uploads/${newProduct.imageName}`
+				path.dirname(fileURLToPath(import.meta.url)),
+				`../uploads/${newProduct.imageName}`,
 			);
 
 			// hapus gambar sebelumnya
@@ -171,6 +218,36 @@ router.put("/:id", validationToken, upload.single("file"), async (req, res) => {
 				.status(500)
 				.json({ success: false, messsage: "internal server error" });
 		}
+	},
+);
+
+// hapus riwayat pembelian
+router.delete("/:purchaseId", validationToken, async (req, res) => {
+	const { purchaseId } = req.params;
+	const userData = req.userData;
+
+	try {
+		const user = await User.findById(userData.id);
+
+		console.log(user.purchaseItems, 1);
+
+		user.purchaseItems = user.purchaseItems.filter(
+			(history) => history._id.toString() !== purchaseId,
+		);
+
+		console.log(user.purchaseItems, 2);
+
+		await user.save();
+
+		res.status(200).json({
+			msg: "Berhasil menghapus riwayat pembelian",
+			data: purchaseId,
+		});
+	} catch (err) {
+		console.log(err);
+		res.status(500).json({
+			msg: "Terjadi kesalahan",
+		});
 	}
 });
 
@@ -193,7 +270,7 @@ router.delete("/:id", async (req, res) => {
 		const __dirname = path.dirname(__filename);
 		const filePath = path.join(
 			__dirname,
-			`../uploads/${productExist.imageName}`
+			`../uploads/${productExist.imageName}`,
 		);
 
 		await productExist.deleteOne();

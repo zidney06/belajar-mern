@@ -1,5 +1,30 @@
 import mongoose from "mongoose";
-import { skemaBarang } from "./product.model.js";
+import { itemSchema } from "./product.model.js";
+
+const orderListSchema = new mongoose.Schema({
+	buyerId: {
+		type: mongoose.Schema.Types.ObjectId,
+		ref: "User",
+		required: true,
+	},
+	item: {
+		type: itemSchema,
+	},
+});
+
+const purchaseItemsSchema = new mongoose.Schema({
+	item: itemSchema,
+	sellerId: {
+		type: mongoose.Schema.Types.ObjectId,
+		ref: "User",
+		required: true,
+	},
+	status: {
+		type: String,
+		enum: ["pending", "completed", "cancelled"],
+		default: "pending",
+	},
+});
 
 const userSchema = new mongoose.Schema(
 	{
@@ -16,12 +41,19 @@ const userSchema = new mongoose.Schema(
 			required: true,
 		},
 		orderList: {
-			type: [skemaBarang],
+			type: [orderListSchema],
 		},
+		purchaseItems: [purchaseItemsSchema],
+		userProducts: [
+			{
+				type: mongoose.Schema.Types.ObjectId,
+				ref: "Product",
+			},
+		],
 	},
 	{
 		timestamps: true, //jika true, maka saaat memasukan data kedalam db akan ada satu data tambahan yaitu data tanggal
-	}
+	},
 );
 
 const User = mongoose.model("User", userSchema);

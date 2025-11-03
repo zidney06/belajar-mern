@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-export const skemaBarang = new mongoose.Schema(
+export const itemSchema = new mongoose.Schema(
 	{
 		title: {
 			type: String,
@@ -26,17 +26,17 @@ export const skemaBarang = new mongoose.Schema(
 			type: Number,
 			required: true,
 		},
-		tags: Array,
 		ownerId: {
-			type: String,
+			type: mongoose.Schema.Types.ObjectId,
 			required: true,
 		},
+		tags: Array,
 	},
 	{
 		timestamps: true, //jika true, maka saaat memasukan data kedalam db akan ada satu data tambahan yaitu data tanggal
-	}
+	},
 );
 
-const Product = mongoose.model("Product", skemaBarang);
+const Product = mongoose.model("Product", itemSchema);
 
 export default Product;
