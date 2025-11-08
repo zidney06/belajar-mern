@@ -1,4 +1,8 @@
-import axios, { type AxiosResponse, type AxiosError } from "axios";
+import axios, {
+	type AxiosResponse,
+	type AxiosError,
+	isAxiosError,
+} from "axios";
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
@@ -34,6 +38,16 @@ export const getFetch = async (
 
 		return { ...res, success: true };
 	} catch (err) {
+		if (isAxiosError(err)) {
+			if (err.response) {
+				alert(err.response.data.msg);
+			} else {
+				alert("Kesalahan Jaringan. Cek koneksi Anda.");
+			}
+		} else {
+			// Error non-Axios lainnya
+			alert("Terjadi kesalahan saat memproses login.");
+		}
 		console.log(err);
 		return { err, success: false };
 	}
@@ -55,6 +69,16 @@ export const postFetch = async (
 
 		return { ...res, success: true };
 	} catch (err) {
+		if (isAxiosError(err)) {
+			if (err.response) {
+				alert(err.response.data.msg);
+			} else {
+				alert("Kesalahan Jaringan. Cek koneksi Anda.");
+			}
+		} else {
+			// Error non-Axios lainnya
+			alert("Terjadi kesalahan saat memproses login.");
+		}
 		console.log(err);
 		return { err, success: false };
 	}
@@ -76,6 +100,16 @@ export const putfetch = async (
 
 		return { ...res, success: true };
 	} catch (err) {
+		if (isAxiosError(err)) {
+			if (err.response) {
+				alert(err.response.data.msg);
+			} else {
+				alert("Kesalahan Jaringan. Cek koneksi Anda.");
+			}
+		} else {
+			// Error non-Axios lainnya
+			alert("Terjadi kesalahan saat memproses login.");
+		}
 		console.log(err);
 		return { err, success: false };
 	}
@@ -96,6 +130,16 @@ export const delFetch = async (
 
 		return { ...res, success: true };
 	} catch (err) {
+		if (isAxiosError(err)) {
+			if (err.response) {
+				alert(err.response.data.msg);
+			} else {
+				alert("Kesalahan Jaringan. Cek koneksi Anda.");
+			}
+		} else {
+			// Error non-Axios lainnya
+			alert("Terjadi kesalahan saat memproses login.");
+		}
 		console.log(err);
 		return { err, success: false };
 	}

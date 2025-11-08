@@ -222,7 +222,7 @@ router.put(
 );
 
 // hapus riwayat pembelian
-router.delete("/:purchaseId", validationToken, async (req, res) => {
+router.delete("/purchase/:purchaseId", validationToken, async (req, res) => {
 	const { purchaseId } = req.params;
 	const userData = req.userData;
 
@@ -255,14 +255,14 @@ router.delete("/:id", async (req, res) => {
 	const { id } = req.params;
 	console.log(id);
 
-	const productExist = await Product.findOne({ _id: id });
+	const productExist = await Product.findById(id);
 
 	if (!productExist) {
 		console.log(`data id: ${id} tidak ditemukan`);
 		return res.status(404).json({ message: "data tidak ditemukan" });
 	}
 
-	console.log(productExist);
+	console.log(productExist, "del");
 
 	try {
 		// hapus gambar di folder uploads
@@ -283,10 +283,10 @@ router.delete("/:id", async (req, res) => {
 			console.log("berhasil menghapus file");
 		});
 
-		res.status(200).json({ success: true, message: "data berhasil dihapus" });
-	} catch (e) {
-		console.log("error: " + e.message);
-		res.status(404).json({ success: false, message: "data tidak ditemukan" });
+		res.status(200).json({ success: true, msg: "data berhasil dihapus" });
+	} catch (err) {
+		console.log("error: " + err.message);
+		res.status(404).json({ success: false, msg: "data tidak ditemukan" });
 	}
 });
 

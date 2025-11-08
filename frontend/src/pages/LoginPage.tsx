@@ -17,6 +17,9 @@ export default function LoginPage() {
 	const [isLogin, setislogin] = useState<boolean>(false);
 
 	useEffect(() => {
+		if (!sessionStorage.getItem("token")) {
+			return;
+		}
 		getFetch("/user/user-info").then((res) => {
 			if (!res.success) {
 				dispatch(delUser());

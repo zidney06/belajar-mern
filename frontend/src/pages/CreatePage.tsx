@@ -51,15 +51,18 @@ export default function CreatePage() {
 	useEffect(() => {
 		getFetch("/user/user-product").then((res) => {
 			if (!res.success) {
-				dispatch(
-					setUser({
-						_id: "",
-						username: "",
-						email: "",
-					}),
-				);
-				dispatch(setUserProducts([]));
-				sessionStorage.removeItem("token");
+				if (res.status === 401) {
+					dispatch(
+						setUser({
+							_id: "",
+							username: "",
+							email: "",
+						}),
+					);
+					dispatch(setUserProducts([]));
+					sessionStorage.removeItem("token");
+				}
+
 				alert("terjadi kesalahan");
 				return;
 			}
@@ -151,20 +154,6 @@ export default function CreatePage() {
 
 		putfetch(route, formData).then((res) => {
 			if (!res.success) {
-				if (isAxiosError(res.err)) {
-					// Cek jika ada response dari server (status 4xx/5xx)
-					if (res.err.response) {
-						// ✅ Akses aman: res.err.response.data.message
-						alert(res.err.response.data.msg);
-					} else {
-						// Network Error murni atau Timeout
-						alert("Kesalahan Jaringan. Cek koneksi Anda.");
-					}
-				} else {
-					// Error non-Axios lainnya
-					alert("Terjadi kesalahan saat memproses login.");
-				}
-
 				return;
 			}
 
@@ -213,20 +202,6 @@ export default function CreatePage() {
 
 		postFetch("/product", formData).then((res) => {
 			if (!res.success) {
-				if (isAxiosError(res.err)) {
-					// Cek jika ada response dari server (status 4xx/5xx)
-					if (res.err.response) {
-						// ✅ Akses aman: res.err.response.data.message
-						alert(res.err.response.data.msg);
-					} else {
-						// Network Error murni atau Timeout
-						alert("Kesalahan Jaringan. Cek koneksi Anda.");
-					}
-				} else {
-					// Error non-Axios lainnya
-					alert("Terjadi kesalahan saat memproses login.");
-				}
-
 				return;
 			}
 
@@ -257,6 +232,9 @@ export default function CreatePage() {
 					return;
 				}
 
+				console.log(res);
+
+				alert(res.data.msg);
 				dispatch(delProduct({ id }));
 				dispatch(delUserProduct({ id }));
 			});
@@ -348,8 +326,6 @@ export default function CreatePage() {
 			);
 		});
 	};
-
-	console.log(orderList);
 
 	if (!data._id) {
 		return (

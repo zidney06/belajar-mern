@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { delFetch, getFetch } from "../../utility/fetch.ts";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 interface Item {
 	_id: string;
@@ -27,18 +27,11 @@ export default function PurchaseHistory() {
 
 	useEffect(() => {
 		if (!sessionStorage.getItem("token")) {
-			navigate("/login");
 			return;
 		}
 		getFetch("/user/purchase-history").then((res) => {
 			if (!res.success) {
-				if (res.status === 401) {
-					alert("Harap login dulu");
-					navigate("/login");
-					return;
-				}
-				alert("Gagal mengambl data");
-				navigate("/login");
+				setPurchaseHistory([]);
 				return;
 			}
 
@@ -49,7 +42,7 @@ export default function PurchaseHistory() {
 
 	const handleDelete = (purchaseId: string) => {
 		console.log(purchaseId);
-		delFetch("/product/" + purchaseId).then((res) => {
+		delFetch("/product/purchase" + purchaseId).then((res) => {
 			if (!res.success) {
 				if (res.status === 401) {
 					alert("Harap login dulu");
@@ -65,6 +58,22 @@ export default function PurchaseHistory() {
 			console.log(res);
 		});
 	};
+
+	if (purchaseHistory.length === 0) {
+		return (
+			<div className="container-fluid p-0 my-5 d-flex justify-content-center align-items-center dev-container">
+				<div className="w-75 border border-2 border-info rounded p-3">
+					<h1 className="text-center">Harap Login Terlebih Dahulu</h1>
+					<Link
+						to="/login"
+						className="btn btn-outline-primary mx-auto d-block w-25"
+					>
+						Login
+					</Link>
+				</div>
+			</div>
+		);
+	}
 
 	return (
 		<div className="container-fluid" style={{ minHeight: "80vh" }}>

@@ -17,7 +17,7 @@ export default function HomePage() {
 	useEffect(() => {
 		getFetch("/product").then((res) => {
 			if (!res.success) {
-				return alert("Gagal mengambil data produk");
+				return;
 			}
 			setProducts(res.data.data);
 		});

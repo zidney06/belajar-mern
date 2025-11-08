@@ -7,6 +7,29 @@ import { validationToken } from "../middlewares/middleware.js";
 
 const router = express.Router();
 
+router.get("/user-info", validationToken, async (req, res) => {
+	const userData = req.userData;
+
+	try {
+		const user = await User.findById(userData.id);
+
+		if (!user) {
+			return res.status(404).json({
+				msg: "User tidak ditemukan",
+			});
+		}
+
+		res.status(200).json({
+			message: "Oke",
+			isLogin: true,
+		});
+	} catch (err) {
+		res.status(500).json({
+			msg: err.message,
+		});
+	}
+});
+
 router.get("/user-product", validationToken, async (req, res) => {
 	const userData = req.userData;
 
@@ -247,13 +270,6 @@ router.post("/logout", (req, res) => {
 		}
 		res.clearCookie("connect.sid"); // ini digunakan untuk menghapus cookie di sisi client
 		res.json({ message: "berhasil logout" });
-	});
-});
-
-router.get("/user-info", validationToken, (req, res) => {
-	res.status(200).json({
-		message: "Oke",
-		isLogin: true,
 	});
 });
 

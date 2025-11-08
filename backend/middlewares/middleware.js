@@ -8,13 +8,17 @@ export function validationToken(req, res, next) {
 	const { authorization } = req.headers;
 
 	if (!authorization) {
-		return res.status(401).json({ message: "Token diperlukan" });
+		return res
+			.status(401)
+			.json({ msg: "Token diperlukan. Harap login terlebih dahulu." });
 	}
 
 	const token = authorization.split(" ")[1];
 
 	if (!token || token === "null" || token === "undefined") {
-		return res.status(401).json({ msg: "Token diperlukan" });
+		return res
+			.status(401)
+			.json({ msg: "Token diperlukan Harap login terlebih dahulu." });
 	}
 
 	try {

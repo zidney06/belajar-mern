@@ -1,6 +1,4 @@
 import { postFetch } from "../../utility/fetch.ts";
-import { isAxiosError } from "axios";
-import { useEffect, useState, type JSX } from "react";
 
 interface ProductListProps {
 	header: string;
@@ -35,23 +33,6 @@ export default function ProductList({
 				productId: product._id,
 			}).then((res) => {
 				if (!res.success) {
-					if (res.status == 401) {
-						alert("Login dulu");
-						return;
-					}
-					if (isAxiosError(res.err)) {
-						// Cek jika ada response dari server (status 4xx/5xx)
-						if (res.err.response) {
-							// ✅ Akses aman: res.err.response.data.message
-							alert(res.err.response.data.msg);
-						} else {
-							// Network Error murni atau Timeout
-							alert("Kesalahan Jaringan. Cek koneksi Anda.");
-						}
-					} else {
-						// Error non-Axios lainnya
-						alert("Terjadi kesalahan saat memproses login.");
-					}
 					return;
 				}
 				alert("Permintaan berhasil dikirim");
