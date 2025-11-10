@@ -51,17 +51,14 @@ const limiter = rateLimit({
 
 // production
 if (process.env.NODE_ENV === "production") {
-	app.use(
-		"/folder/fotos",
-		express.static(path.join(__dirname, "../src/uploads")),
-	);
+	app.use("/folder/fotos", express.static(path.join(__dirname, "../uploads")));
 	app.use(express.static(path.join(__dirname, "../../frontend/dist")));
 
 	app.get("/", (req: Request, res: Response) => {
 		res.sendFile(path.join(__dirname, "../../frontend/dist/index.html"));
 	});
 } else {
-	app.use("/folder/fotos", express.static(path.join(__dirname, "uploads")));
+	app.use("/folder/fotos", express.static(path.join(__dirname, "../uploads")));
 	app.get("/", (req: Request, res: Response) => {
 		console.log("Pengunjung");
 		res.send("Selamat datang!");
