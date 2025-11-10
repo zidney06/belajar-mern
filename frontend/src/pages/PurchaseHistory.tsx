@@ -42,7 +42,7 @@ export default function PurchaseHistory() {
 
 	const handleDelete = (purchaseId: string) => {
 		console.log(purchaseId);
-		delFetch("/product/purchase" + purchaseId).then((res) => {
+		delFetch("/product/purchase/" + purchaseId).then((res) => {
 			if (!res.success) {
 				if (res.status === 401) {
 					alert("Harap login dulu");
