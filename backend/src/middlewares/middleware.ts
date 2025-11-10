@@ -46,7 +46,7 @@ di mana file dismpan, pemrosesan dapatberjalan dengan cepat
 */
 
 // pastikan folder upload sudah ada
-const uploadir = path.join(__dirname, "../uploads");
+const uploadir = path.join(__dirname, "../../uploads");
 
 // cek apakah folder uploads sudah ada atau belum
 if (!fs.existsSync(uploadir)) {

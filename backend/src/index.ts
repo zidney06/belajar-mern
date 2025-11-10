@@ -29,18 +29,18 @@ app.get('/spesial', cors({origin: 'url', optionSucessStatus: 200}), (req, res) =
 */
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true })); // digunakan agar dapat mengkases data yang diirimkan di body request dengan req.body
-app.use(
-	session({
-		secret: process.env.SESSION_SECRET!,
-		resave: false, // jika true session disimpan ke penyimpanan pada setiap request walaupun tidak dimodifikasi
-		saveUninitialized: false,
-		// secara default session akan tetap ada hingga server disertart
-		// jika ingin memberikan expired pada session maka pakai ini
-		cookie: {
-			maxAge: 1000 * 60 * 30,
-		}, // dengan ini session akan expired dalam, satu jam (ini pakai milisecond)
-	}),
-);
+// app.use(
+// 	session({
+// 		secret: process.env.SESSION_SECRET!,
+// 		resave: false, // jika true session disimpan ke penyimpanan pada setiap request walaupun tidak dimodifikasi
+// 		saveUninitialized: false,
+// 		// secara default session akan tetap ada hingga server disertart
+// 		// jika ingin memberikan expired pada session maka pakai ini
+// 		cookie: {
+// 			maxAge: 1000 * 60 * 30,
+// 		}, // dengan ini session akan expired dalam, satu jam (ini pakai milisecond)
+// 	}),
+// );
 // limit request
 const limiter = rateLimit({
 	windowMs: 1 * 60 * 1000,

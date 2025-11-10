@@ -357,12 +357,10 @@ router.post("/logout", (req, res) => {
 	// ini digunakan untuk menghaous sesi disisi server
 
 	try {
-		req.session.destroy((err) => {
-			if (err) {
-				return res.status(500).json({ message: "gagal logout" });
-			}
-			res.clearCookie("connect.sid"); // ini digunakan untuk menghapus cookie di sisi client
-			res.json({ message: "berhasil logout" });
+		// ganti jadi memasukan token jwt ke blaklist
+		// sementara langsung oke aja
+		res.status(200).json({
+			msg: "Berhasil logout",
 		});
 	} catch (e) {
 		if (isError(e)) {

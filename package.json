@@ -5,7 +5,7 @@
 	"scripts": {
 		"dev": "nodemon",
 		"build": "npm i && npm i --prefix frontend && npm run build --prefix frontend",
-		"start": "cross-env NODE_ENV=production node backend/dist/index.js",
+		"start": "cross-env NODE_ENV=production node backend/dist/",
 		"test": "jest",
 		"dev-build": "tsc -p ./backend/tsconfig.json"
 	},

@@ -84,7 +84,7 @@ router.post("/", validationToken, upload.single("file"), async (req, res) => {
 			success: true,
 			data: newProduct,
 			filename: req.file.filename,
-			path: `../uploads/files/${req.file.filename}`,
+			path: `../../uploads/files/${req.file.filename}`,
 		});
 	} catch (e) {
 		if (isError(e)) {
@@ -222,8 +222,8 @@ router.put(
 
 		try {
 			const filePath = path.join(
-				path.dirname(fileURLToPath(__dirname)),
-				`../uploads/${newProduct.imageName}`,
+				__dirname,
+				`../../uploads/${newProduct.imageName}`,
 			);
 
 			// hapus gambar sebelumnya
@@ -314,7 +314,7 @@ router.delete("/:id", async (req, res) => {
 		// hapus gambar di folder uploads
 		const filePath = path.join(
 			__dirname,
-			`../uploads/${productExist.imageName}`,
+			`../../uploads/${productExist.imageName}`,
 		);
 
 		await productExist.deleteOne();
