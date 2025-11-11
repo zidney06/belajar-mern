@@ -7,7 +7,7 @@
 		"build": "npm i && npm i --prefix frontend && npm run build --prefix frontend",
 		"start": "cross-env NODE_ENV=production node backend/dist/",
 		"test": "jest",
-		"dev-build": "tsc -p ./backend/tsconfig.json"
+		"dev-build": "tsc -p ./tsconfig.json"
 	},
 	"jest": {
 		"transform": {
