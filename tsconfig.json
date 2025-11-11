@@ -1,0 +1,16 @@
+{
+	// Visit https://aka.ms/tsconfig to read more about this file
+	"compilerOptions": {
+		"target": "ES2020",
+		"module": "node16",
+		"outDir": "./backend/dist",
+		"rootDir": "./backend/src",
+		"strict": true,
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"forceConsistentCasingInFileNames": true,
+		"removeComments": true
+	},
+	"include": ["./backend/src"],
+	"exclude": ["node_modules", "uploads"]
+}
