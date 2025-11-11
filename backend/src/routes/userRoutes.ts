@@ -1,7 +1,8 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User, { PurchaseItem, UserSchema } from "../models/userModel";
+import BLToken from "../models/BLTokenModel";
 import { validationToken } from "../middlewares/middleware";
 
 const router = express.Router();
@@ -342,12 +343,37 @@ router.post("/login", async (req, res) => {
 });
 
 // memperbarui sesi
-router.post("/logout", (req, res) => {
-	// ini digunakan untuk menghaous sesi disisi server
-
+router.post("/logout", validationToken, async (req: Request, res: Response) => {
+	console.log("Fitur blacklist token\n");
+	if (!req.userData) {
+		return res.status(401).json({
+			msg: "Akses ditolak!",
+		});
+	}
 	try {
+		const authHeader = req.headers.authorization;
+
+		if (!authHeader || !authHeader.startsWith("Bearer ")) {
+			return res.status(401).json({ msg: "Akses ditolak. Token tidak valid." });
+		}
+
+		const token = authHeader.split(" ")[1];
+
 		// ganti jadi memasukan token jwt ke blaklist
-		// sementara langsung oke aja
+		const isBlacklisted = await BLToken.findOne({ token: token });
+
+		if (isBlacklisted) {
+			return res.status(401).json({ msg: "Token sudah diblokir." });
+		}
+
+		const blacklistedToken = new BLToken({
+			token: token,
+			userId: req.userData.id,
+		});
+		await blacklistedToken.save();
+
+		console.log(blacklistedToken, "token");
+
 		res.status(200).json({
 			msg: "Berhasil logout",
 		});

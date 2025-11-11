@@ -4,8 +4,9 @@ import path from "path";
 import fs from "fs";
 import { NextFunction, Request, Response } from "express";
 import { CustomJwtPayload } from "../types/express.d";
+import BLToken from "../models/BLTokenModel";
 
-export const validationToken = (
+export const validationToken = async (
 	req: Request,
 	res: Response,
 	next: NextFunction,
@@ -19,13 +20,15 @@ export const validationToken = (
 	const token = authHeader.split(" ")[1];
 
 	try {
-		// 1. Verifikasi dan Type Assertion
-		// Hasil dari verify bisa berupa string atau payload
+		const isBlacklisted = await BLToken.findOne({ token: token });
+
+		if (isBlacklisted) {
+			return res.status(401).json({ msg: "Token sudah diblokir." });
+		}
+
 		const decoded = jwt.verify(token, process.env.JWT_SECRET!);
 
-		// 2. Type Narrowing: Pastikan hasilnya bukan string
 		if (typeof decoded !== "string") {
-			// Asumsikan tipe CustomJwtPayload setelah verifikasi
 			req.userData = decoded as CustomJwtPayload;
 			next();
 		} else {
