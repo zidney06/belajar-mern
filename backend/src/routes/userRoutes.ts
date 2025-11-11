@@ -59,8 +59,6 @@ router.get("/user-product", validationToken, async (req, res) => {
 			return res.status(404).json({ message: "gagal" });
 		}
 
-		console.log(user);
-
 		res.json({
 			username: userData.username,
 			products: user.userProducts,
@@ -91,7 +89,6 @@ router.get("/purchase-history", validationToken, async (req, res) => {
 			});
 		}
 
-		console.log(user.purchaseItems);
 		if (!user) {
 			return res.status(404).json({
 				msg: "User tidak ditemukan",
@@ -144,8 +141,6 @@ router.post("/respons", validationToken, async (req, res) => {
 				});
 			}
 
-			console.log(seller.orderList);
-
 			// update status pembelian
 			const buyer = await User.findByIdAndUpdate(
 				buyerId, // ID dokumen User yang dicari
@@ -173,8 +168,6 @@ router.post("/respons", validationToken, async (req, res) => {
 				});
 			}
 
-			console.log(buyer.purchaseItems);
-
 			res.status(200).json({
 				msg: "Permintaan diterima",
 				data: {
@@ -199,8 +192,6 @@ router.post("/respons", validationToken, async (req, res) => {
 					msg: "Seller tidak ditemukan",
 				});
 			}
-
-			console.log(seller.orderList);
 
 			const buyer = await User.findByIdAndUpdate(
 				buyerId, // ID dokumen User yang dicari
@@ -228,8 +219,6 @@ router.post("/respons", validationToken, async (req, res) => {
 				});
 			}
 
-			console.log(buyer.purchaseItems);
-
 			res.status(200).json({
 				msg: "Permintaan ditolak",
 				data: {
@@ -248,26 +237,26 @@ router.post("/register", async (req, res) => {
 	const user = req.body;
 	const salt = await bcrypt.genSalt(10);
 
-	// cek apakah user sudah ada atau belum
-	const existingUser = await User.findOne({ email: user.email });
-
-	if (existingUser) {
-		return res.status(409).json({ message: "Email sudah digunakan!" });
-	}
-
-	if (!user.username || !user.email || !user.password) {
-		return res.status(403).json({ message: "lengkapi datanya dulu!" });
-	}
-
-	user.password = await bcrypt.hash(user.password, salt);
-
-	const newUser = new User({
-		username: user.username,
-		email: user.email,
-		password: user.password,
-	});
-
 	try {
+		// cek apakah user sudah ada atau belum
+		const existingUser = await User.findOne({ email: user.email });
+
+		if (existingUser) {
+			return res.status(409).json({ message: "Email sudah digunakan!" });
+		}
+
+		if (!user.username || !user.email || !user.password) {
+			return res.status(403).json({ message: "lengkapi datanya dulu!" });
+		}
+
+		user.password = await bcrypt.hash(user.password, salt);
+
+		const newUser = new User({
+			username: user.username,
+			email: user.email,
+			password: user.password,
+		});
+
 		// simpan data user baru ke DB
 		await newUser.save();
 

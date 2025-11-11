@@ -4,7 +4,6 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import session from "express-session";
 import path from "path";
-import { fileURLToPath } from "url";
 import { connectDB } from "./config/db";
 import productRoutes from "./routes/productRoutes";
 import userRoutes from "./routes/userRoutes";
@@ -60,7 +59,6 @@ if (process.env.NODE_ENV === "production") {
 } else {
 	app.use("/folder/fotos", express.static(path.join(__dirname, "../uploads")));
 	app.get("/", (req: Request, res: Response) => {
-		console.log("Pengunjung");
 		res.send("Selamat datang!");
 	});
 }
@@ -72,8 +70,6 @@ app.use("/folder/fotos", express.static(path.join(__dirname, "uploads")));
 
 app.use("/api/product", limiter, productRoutes);
 app.use("/api/user", limiter, userRoutes);
-
-console.log("coy");
 
 app.get("*", (req: Request, res: Response) => {
 	res.status(404).send("<h1>Page Not Found on the Server</h1>");

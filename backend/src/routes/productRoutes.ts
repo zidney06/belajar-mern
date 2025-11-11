@@ -3,7 +3,6 @@ import mongoose from "mongoose";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
-import { fileURLToPath } from "url";
 import { validationToken, storage } from "../middlewares/middleware";
 import User from "../models/userModel";
 import Product from "../models/product.model";
@@ -106,8 +105,6 @@ router.post("/buy-product", validationToken, async (req, res) => {
 	const user = req.userData;
 	const { productId } = req.body;
 
-	console.log(productId);
-
 	try {
 		const dataProduct = await Product.findById(productId);
 
@@ -148,9 +145,11 @@ router.post("/buy-product", validationToken, async (req, res) => {
 		await Promise.all([seller.save(), buyer.save()]);
 
 		res.status(200).json({ msg: "Pembelian telah diterima!" });
-	} catch (err) {
-		console.log(err);
-		res.status(500).json({ msg: "Terjadi kesalahan!" });
+	} catch (e) {
+		if (isError(e)) {
+			console.error(`Error message: ${e.message}`);
+			res.status(500).json({ success: false, msg: "Server error" });
+		}
 	}
 });
 
@@ -161,8 +160,6 @@ router.put(
 	async (req, res) => {
 		const { id } = req.params;
 		const newProduct = JSON.parse(req.body.data);
-
-		console.log("tanpa ada file", newProduct);
 
 		try {
 			const existedProduct = await Product.findById(id);
@@ -177,7 +174,6 @@ router.put(
 				new: true,
 			});
 
-			console.log(updatedProduct);
 			res.status(201).json({ success: true, data: updatedProduct });
 		} catch (e) {
 			if (isError(e)) {
@@ -229,16 +225,15 @@ router.put(
 			// hapus gambar sebelumnya
 			fs.unlink(filePath, (err) => {
 				if (err) {
-					console.log("gagal menghapus file", err);
+					console.log("gagal menghapus gambar", err);
 					return;
 				}
-				console.log("berhasil menghapus file");
+				console.log("berhasil menghapus gambar");
 			});
 
 			newProduct.imageUrl = `http://localhost:3000/folder/fotos/${req.file.filename}`;
 			newProduct.imageName = req.file.filename;
 
-			console.log(newProduct, req.file);
 			// const updatedProduct = 'tes'
 			const updatedProduct = await Product.findByIdAndUpdate(id, newProduct, {
 				new: true,
@@ -283,8 +278,6 @@ router.delete("/purchase/:purchaseId", validationToken, async (req, res) => {
 			});
 		}
 
-		console.log(user.purchaseItems, "del purchase");
-
 		res.status(200).json({
 			msg: "Berhasil menghapus riwayat pembelian",
 			data: purchaseId,
@@ -299,17 +292,13 @@ router.delete("/purchase/:purchaseId", validationToken, async (req, res) => {
 
 router.delete("/:id", async (req, res) => {
 	const { id } = req.params;
-	console.log(id);
 
 	try {
 		const productExist = await Product.findById(id);
 
 		if (!productExist) {
-			console.log(`data id: ${id} tidak ditemukan`);
 			return res.status(404).json({ message: "data tidak ditemukan" });
 		}
-
-		console.log(productExist, "del");
 
 		// hapus gambar di folder uploads
 		const filePath = path.join(
@@ -321,10 +310,10 @@ router.delete("/:id", async (req, res) => {
 
 		fs.unlink(filePath, (err) => {
 			if (err) {
-				console.log("gagal menghapus file", err);
+				console.log("gagal menghapus gambar", err);
 				return;
 			}
-			console.log("berhasil menghapus file");
+			console.log("berhasil menghapus gambar");
 		});
 
 		res.status(200).json({ success: true, msg: "data berhasil dihapus" });
