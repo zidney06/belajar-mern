@@ -30,7 +30,10 @@ export const itemSchema = new mongoose.Schema(
 			type: mongoose.Schema.Types.ObjectId,
 			required: true,
 		},
-		tags: Array,
+		tags: {
+			type: [String],
+			default: ["buku"],
+		},
 	},
 	{
 		timestamps: true, //jika true, maka saaat memasukan data kedalam db akan ada satu data tambahan yaitu data tanggal

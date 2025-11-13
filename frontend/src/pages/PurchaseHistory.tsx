@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { delFetch, getFetch } from "../../utility/fetch.ts";
 import { useNavigate, Link } from "react-router-dom";
 import MyContext from "../context/MyContext.ts";
+import { isAxiosError } from "axios";
 
 interface Item {
 	_id: string;
@@ -39,15 +40,25 @@ export default function PurchaseHistory() {
 			const res = await getFetch("/user/purchase-history");
 
 			if (!res.success) {
+				if (isAxiosError(res.err)) {
+					res.err.response &&
+						popup({
+							isShow: true,
+							title: "Oops!",
+							message: res.err.response.data.msg,
+						});
+				} else {
+					// Error non-Axios lainnya
+					popup({
+						isShow: true,
+						title: "Oops!",
+						message: "Terjadi kesalahan saat memproses login.",
+					});
+				}
 				setPurchaseHistory([]);
 
 				setIsLogin(false);
 				setIsLoading(false);
-				popup({
-					isShow: true,
-					title: "Oops!",
-					message: "Gagal mengambil informasi pembelian",
-				});
 				return;
 			}
 
@@ -61,12 +72,22 @@ export default function PurchaseHistory() {
 	const handleDelete = (purchaseId: string) => {
 		delFetch("/product/purchase/" + purchaseId).then((res) => {
 			if (!res.success) {
-				if (res.status === 401) {
-					alert("Harap login dulu");
-					navigate("/login");
-					return;
+				if (isAxiosError(res.err)) {
+					res.err.response &&
+						popup({
+							isShow: true,
+							title: "Oops!",
+							message: res.err.response.data.msg,
+						});
+				} else {
+					// Error non-Axios lainnya
+					popup({
+						isShow: true,
+						title: "Oops!",
+						message: "Terjadi kesalahan saat memproses login.",
+					});
 				}
-				return alert("Gagal meghapus history");
+				return;
 			}
 
 			setPurchaseHistory((prev) =>

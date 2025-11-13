@@ -26,7 +26,7 @@ router.get("/", async (req, res) => {
 	} catch (e) {
 		if (isError(e)) {
 			console.error(`Error message: ${e.message}`);
-			res.status(500).json({ success: false, message: "server error" });
+			res.status(500).json({ success: false, msg: "server error" });
 		}
 	}
 });
@@ -44,12 +44,12 @@ router.post("/", validationToken, upload.single("file"), async (req, res) => {
 		const user = await User.findById(userData.id);
 
 		if (!user) {
-			return res.status(401).json({ message: "User tidak ditemukan!" });
+			return res.status(401).json({ msg: "User tidak ditemukan!" });
 		}
 
 		// cek apakah user mengirimkan file atau tidak
 		if (!req.file) {
-			return res.status(400).json({ message: "no file uploaded" });
+			return res.status(400).json({ msg: "no file uploaded" });
 		}
 
 		const product = JSON.parse(req.body.data);
@@ -65,7 +65,7 @@ router.post("/", validationToken, upload.single("file"), async (req, res) => {
 		) {
 			return res
 				.status(403)
-				.json({ success: false, message: "tolong masukan data dengan benar" });
+				.json({ success: false, msg: "tolong masukan data dengan benar" });
 		}
 
 		const newProduct = new Product({
@@ -167,11 +167,12 @@ router.put(
 			if (!existedProduct) {
 				return res
 					.status(404)
-					.json({ succesa: false, message: "data tidak ditemukan" });
+					.json({ success: false, msg: "data tidak ditemukan" });
 			}
 
 			const updatedProduct = await Product.findByIdAndUpdate(id, newProduct, {
 				new: true,
+				runValidators: true,
 			});
 
 			res.status(201).json({ success: true, data: updatedProduct });
@@ -202,12 +203,12 @@ router.put(
 		if (!mongoose.Types.ObjectId.isValid(id)) {
 			return res
 				.status(404)
-				.json({ succesa: false, message: "data tidak ditemukan" });
+				.json({ success: false, msg: "data tidak ditemukan" });
 		}
 
 		// cek apakah user memiliki sesi atau tidak
 		if (!userData) {
-			return res.status(401).json({ message: "Sesi anda telah habis" });
+			return res.status(401).json({ msg: "Sesi anda telah habis" });
 		}
 
 		if (!req.file) {
@@ -297,7 +298,7 @@ router.delete("/:id", async (req, res) => {
 		const productExist = await Product.findById(id);
 
 		if (!productExist) {
-			return res.status(404).json({ message: "data tidak ditemukan" });
+			return res.status(404).json({ msg: "data tidak ditemukan" });
 		}
 
 		// hapus gambar di folder uploads

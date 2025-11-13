@@ -4,6 +4,7 @@ import { useDispatch } from "react-redux";
 import { setUser, delUser } from "../../slices/userSlice.ts";
 import { getFetch, postFetch } from "../../utility/fetch.ts";
 import MyContext from "../context/MyContext.ts";
+import { isAxiosError } from "axios";
 
 export default function LoginPage() {
 	const [isRegister, setIsRegister] = useState<boolean>(false);
@@ -39,6 +40,7 @@ export default function LoginPage() {
 	};
 
 	const hndlSubmit = () => {
+		// buat agar saat ada error, errornya ditampilkan seperti kalau salah password
 		if (isRegister) {
 			if (!username.current || !email.current || !password.current) {
 				alert("Please fill all fields");
@@ -57,11 +59,21 @@ export default function LoginPage() {
 
 			postFetch("/user/register", data).then((res) => {
 				if (!res.success) {
-					popup({
-						isShow: true,
-						title: "Oops!",
-						message: "Gagal registrasi",
-					});
+					if (isAxiosError(res.err)) {
+						res.err.response &&
+							popup({
+								isShow: true,
+								title: "Oops!",
+								message: res.err.response.data.msg,
+							});
+					} else {
+						// Error non-Axios lainnya
+						popup({
+							isShow: true,
+							title: "Oops!",
+							message: "Terjadi kesalahan saat memproses login.",
+						});
+					}
 					return;
 				}
 				popup({
@@ -84,11 +96,21 @@ export default function LoginPage() {
 			postFetch("/user/login", data).then((res) => {
 				// 1. Kasus Gagal (res.success === false)
 				if (!res.success) {
-					popup({
-						isShow: true,
-						title: "Oops!",
-						message: "Gagal login",
-					});
+					if (isAxiosError(res.err)) {
+						res.err.response &&
+							popup({
+								isShow: true,
+								title: "Oops!",
+								message: res.err.response.data.msg,
+							});
+					} else {
+						// Error non-Axios lainnya
+						popup({
+							isShow: true,
+							title: "Oops!",
+							message: "Terjadi kesalahan saat memproses login.",
+						});
+					}
 					return;
 				}
 

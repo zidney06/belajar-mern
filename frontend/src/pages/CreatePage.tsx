@@ -29,6 +29,7 @@ import {
 import { validation } from "../../utility/helper.ts";
 import type { RootState } from "../../store/store.tsx";
 import MyContext from "../context/MyContext.ts";
+import { isAxiosError } from "axios";
 
 export default function CreatePage() {
 	const dispatch = useDispatch();
@@ -61,11 +62,6 @@ export default function CreatePage() {
 			const res = await getFetch("/user/user-product");
 
 			if (!res.success) {
-				popup({
-					isShow: true,
-					title: "Oops!",
-					message: "Gagal mengambil data produk user",
-				});
 				if (res.status === 401) {
 					dispatch(
 						setUser({
@@ -77,10 +73,23 @@ export default function CreatePage() {
 					dispatch(setUserProducts([]));
 					localStorage.removeItem("alhidayah-token");
 				}
-
+				if (isAxiosError(res.err)) {
+					res.err.response &&
+						popup({
+							isShow: true,
+							title: "Oops!",
+							message: res.err.response.data.msg,
+						});
+				} else {
+					// Error non-Axios lainnya
+					popup({
+						isShow: true,
+						title: "Oops!",
+						message: "Terjadi kesalahan saat memproses login.",
+					});
+				}
 				setIsLogin(false);
 				setIsLoading(false);
-
 				return;
 			}
 			setUsername(res.data.username);
@@ -137,16 +146,21 @@ export default function CreatePage() {
 	const hndlConfirmEdit = () => {
 		let route = "/product/update-without-file/" + productId;
 
-		if (
-			!validation({
-				title,
-				author,
-				price,
-				ISBN,
-				tags,
-				imagePreview,
-			})
-		) {
+		const isValid = validation({
+			title,
+			author,
+			price,
+			ISBN,
+			tags,
+			imagePreview,
+		});
+
+		if (!isValid.status) {
+			popup({
+				isShow: true,
+				title: "Oops!",
+				message: isValid.msg,
+			});
 			return;
 		}
 
@@ -168,17 +182,27 @@ export default function CreatePage() {
 				price,
 				ISBN,
 				imageName: imageName,
-				tags,
+				tags: tags.length === 0 ? ["buku"] : tags,
 			}),
 		);
 
 		putfetch(route, formData).then((res) => {
 			if (!res.success) {
-				popup({
-					isShow: true,
-					title: "Oops!",
-					message: "Gagal mengedit produk",
-				});
+				if (isAxiosError(res.err)) {
+					res.err.response &&
+						popup({
+							isShow: true,
+							title: "Oops!",
+							message: res.err.response.data.msg,
+						});
+				} else {
+					// Error non-Axios lainnya
+					popup({
+						isShow: true,
+						title: "Oops!",
+						message: "Terjadi kesalahan saat memproses login.",
+					});
+				}
 				return;
 			}
 
@@ -192,16 +216,20 @@ export default function CreatePage() {
 		});
 	};
 	const hndlConfirmAdd = () => {
-		if (
-			!validation({
-				title,
-				author,
-				price,
-				ISBN,
-				tags,
-				imagePreview,
-			})
-		) {
+		const isValid = validation({
+			title,
+			author,
+			price,
+			ISBN,
+			tags,
+			imagePreview,
+		});
+		if (!isValid.status) {
+			popup({
+				isShow: true,
+				title: "Oops!",
+				message: isValid.msg,
+			});
 			return;
 		}
 
@@ -218,7 +246,7 @@ export default function CreatePage() {
 					price,
 					ISBN,
 					imageUrl: "",
-					tags,
+					tags: tags.length === 0 ? ["buku"] : tags,
 				}),
 			);
 			formData.append("file", selectedFile);
@@ -226,15 +254,23 @@ export default function CreatePage() {
 
 		postFetch("/product", formData).then((res) => {
 			if (!res.success) {
-				popup({
-					isShow: true,
-					title: "Oops!",
-					message: "Gagal menambahkan produk",
-				});
+				if (isAxiosError(res.err)) {
+					res.err.response &&
+						popup({
+							isShow: true,
+							title: "Oops!",
+							message: res.err.response.data.msg,
+						});
+				} else {
+					// Error non-Axios lainnya
+					popup({
+						isShow: true,
+						title: "Oops!",
+						message: "Terjadi kesalahan saat memproses login.",
+					});
+				}
 				return;
 			}
-
-			console.log(res.data.data);
 			// mengubah global state untuk products
 			dispatch(addProduct(res.data.data));
 			// mengubah state untuk product user
@@ -256,11 +292,21 @@ export default function CreatePage() {
 		if (confirm("Apakah yakin ingin dihapus?")) {
 			delFetch(`/product/${id}`).then((res) => {
 				if (!res.success) {
-					popup({
-						isShow: true,
-						title: "Oops!",
-						message: "Gagal menghapus produk",
-					});
+					if (isAxiosError(res.err)) {
+						res.err.response &&
+							popup({
+								isShow: true,
+								title: "Oops!",
+								message: res.err.response.data.msg,
+							});
+					} else {
+						// Error non-Axios lainnya
+						popup({
+							isShow: true,
+							title: "Oops!",
+							message: "Terjadi kesalahan saat memproses login.",
+						});
+					}
 					return;
 				}
 				dispatch(delProduct({ id }));
@@ -329,11 +375,21 @@ export default function CreatePage() {
 		};
 		postFetch("/user/respons", data).then((res) => {
 			if (!res.success) {
-				popup({
-					isShow: true,
-					title: "Oops!",
-					message: "Gagal mengirim respons",
-				});
+				if (isAxiosError(res.err)) {
+					res.err.response &&
+						popup({
+							isShow: true,
+							title: "Oops!",
+							message: res.err.response.data.msg,
+						});
+				} else {
+					// Error non-Axios lainnya
+					popup({
+						isShow: true,
+						title: "Oops!",
+						message: "Terjadi kesalahan saat memproses login.",
+					});
+				}
 				return;
 			}
 
@@ -544,7 +600,7 @@ export default function CreatePage() {
 								<h5 className="card-title">{product.title}</h5>
 								<p className="mb-0">Author: {product.author}</p>
 								<p className="mb-0">Price: {product.price}</p>
-								<p className="mb-0">tags: {product.tags}</p>
+								<p className="mb-0">tags: {product.tags.join(", ")}</p>
 								<div className="d-flex justify-content-between position-absolute bottom-0 end-0 start-0 p-2">
 									<button
 										className="btn btn-outline-danger"

@@ -1,4 +1,7 @@
+import { useContext } from "react";
 import { postFetch } from "../../utility/fetch.ts";
+import MyContext from "../context/MyContext.ts";
+import { isAxiosError } from "axios";
 
 interface ProductListProps {
 	header: string;
@@ -20,6 +23,8 @@ export default function ProductList({
 	tag,
 	products,
 }: ProductListProps) {
+	const popup = useContext(MyContext);
+
 	const filteredBooks = products.filter((product) =>
 		product.tags.some((el) => el === tag),
 	);
@@ -33,6 +38,21 @@ export default function ProductList({
 				productId: product._id,
 			}).then((res) => {
 				if (!res.success) {
+					if (isAxiosError(res.err)) {
+						res.err.response &&
+							popup({
+								isShow: true,
+								title: "Oops!",
+								message: res.err.response.data.msg,
+							});
+					} else {
+						// Error non-Axios lainnya
+						popup({
+							isShow: true,
+							title: "Oops!",
+							message: "Terjadi kesalahan saat memproses login.",
+						});
+					}
 					return;
 				}
 				alert("Permintaan berhasil dikirim");
@@ -58,8 +78,8 @@ export default function ProductList({
 									<h5 className="card-title">{book.title}</h5>
 									<p className="mb-0">Author: {book.author}</p>
 									<p className="mb-0">Price: {book.price}</p>
-									<p className="mb-0">tags: {book.tags}</p>
-									<div className="d-flex justify-content-betweenp-2 mt-2">
+									<p className="mb-0">tags: {book.tags.join(", ")}</p>
+									<div className="d-flex justify-content-between p-2 mt-2">
 										<button
 											className="btn btn-primary"
 											onClick={() => hndlConfirm(book)}

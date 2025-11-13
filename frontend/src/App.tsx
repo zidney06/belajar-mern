@@ -19,7 +19,7 @@ import PopupContext from "./context/MyContext.ts";
 interface PopUpConfig {
 	isShow: boolean;
 	title: string;
-	message: string;
+	message: string | string[];
 }
 
 function App() {

@@ -1,7 +1,7 @@
 interface PopUpConfig {
 	isShow: boolean;
 	title: string;
-	message: string;
+	message: string | string[];
 }
 
 interface PopUpProps {

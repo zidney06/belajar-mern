@@ -7,21 +7,26 @@ interface ValidationParams {
 	tags: string[];
 }
 
-export const validation: (product: ValidationParams) => boolean = (
-	product: ValidationParams,
+interface ReturnType {
+	status: boolean;
+	msg: string | string[];
+}
+
+export const validation: (product: ValidationParams) => ReturnType = (
+	product,
 ) => {
 	let messages = [];
 
-	if (!product.title) {
+	if (!product.title.trim()) {
 		messages.push("title kosong");
 	}
-	if (!product.author) {
-		messages.push("auhtor kosong");
+	if (!product.author.trim()) {
+		messages.push("author kosong");
 	}
 	if (!product.price) {
 		messages.push("price tidak valid"); // Perbaikan validasi price
 	}
-	if (!product.ISBN) {
+	if (!product.ISBN.trim()) {
 		messages.push("ISBN kosong");
 	}
 	if (!product.imagePreview) {
@@ -29,8 +34,7 @@ export const validation: (product: ValidationParams) => boolean = (
 	}
 
 	if (messages.length > 0) {
-		alert("Terdapat error yaitu: " + messages);
-		return false;
+		return { status: false, msg: messages.join(", ") };
 	}
-	return true;
+	return { status: true, msg: "berhasil" };
 };

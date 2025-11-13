@@ -31,7 +31,7 @@ router.get("/user-info", validationToken, async (req, res) => {
 		}
 
 		res.status(200).json({
-			message: "Oke",
+			msg: "Oke",
 			isLogin: true,
 		});
 	} catch (e) {
@@ -57,7 +57,7 @@ router.get("/user-product", validationToken, async (req, res) => {
 		);
 
 		if (!user) {
-			return res.status(404).json({ message: "gagal" });
+			return res.status(404).json({ msg: "gagal" });
 		}
 
 		res.json({
@@ -243,11 +243,11 @@ router.post("/register", async (req, res) => {
 		const existingUser = await User.findOne({ email: user.email });
 
 		if (existingUser) {
-			return res.status(409).json({ message: "Email sudah digunakan!" });
+			return res.status(409).json({ msg: "Email sudah digunakan!" });
 		}
 
 		if (!user.username || !user.email || !user.password) {
-			return res.status(403).json({ message: "lengkapi datanya dulu!" });
+			return res.status(403).json({ msg: "lengkapi datanya dulu!" });
 		}
 
 		user.password = await bcrypt.hash(user.password, salt);
@@ -263,7 +263,7 @@ router.post("/register", async (req, res) => {
 
 		res.status(201).json({
 			success: true,
-			message: "berhasil registrasi",
+			msg: "berhasil registrasi",
 			data: {
 				username: user.username,
 				email: user.email,
@@ -280,7 +280,7 @@ router.post("/register", async (req, res) => {
 
 router.post("/login", async (req, res) => {
 	if (!req.body.email || !req.body.password) {
-		return res.status(403).json({ message: "lengkapi datanya dulu!" });
+		return res.status(403).json({ msg: "lengkapi datanya dulu!" });
 	}
 	try {
 		// cari apakah user ada di DB atau tidak
@@ -289,7 +289,7 @@ router.post("/login", async (req, res) => {
 		// kalau gak ada maka respon = 404
 		if (!user) {
 			return res.status(404).json({
-				message: `User dengan email ${req.body.email} tidak ditemukan`,
+				msg: `User dengan email ${req.body.email} tidak ditemukan`,
 			});
 		}
 
@@ -323,7 +323,7 @@ router.post("/login", async (req, res) => {
 			});
 
 			return res.status(200).json({
-				message: "user ditemukan dan berhasil login",
+				msg: "user ditemukan dan berhasil login",
 				data: {
 					username: user.username,
 					email: user.email,
@@ -332,7 +332,7 @@ router.post("/login", async (req, res) => {
 				token: token,
 			});
 		} else {
-			return res.status(401).json({ message: "password salah" });
+			return res.status(401).json({ msg: "password salah" });
 		}
 	} catch (e) {
 		if (isError(e)) {

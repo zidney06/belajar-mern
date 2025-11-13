@@ -2,6 +2,7 @@ import { getFetch } from "../../utility/fetch.ts";
 import ProductList from "../components/ProductList.tsx";
 import { useContext, useEffect, useState } from "react";
 import PopupContext from "../context/MyContext.ts";
+import { isAxiosError } from "axios";
 
 interface Product {
 	_id: string;
@@ -26,12 +27,21 @@ export default function HomePage() {
 		setTimeout(async () => {
 			const res = await getFetch("/product");
 			if (!res.success) {
-				popup({
-					isShow: true,
-					title: "Oops!",
-					message: "Gagal mengambil data produk",
-				});
-
+				if (isAxiosError(res.err)) {
+					res.err.response &&
+						popup({
+							isShow: true,
+							title: "Oops!",
+							message: res.err.response.data.msg,
+						});
+				} else {
+					// Error non-Axios lainnya
+					popup({
+						isShow: true,
+						title: "Oops!",
+						message: "Terjadi kesalahan saat memproses login.",
+					});
+				}
 				setIsLoading(false);
 				return;
 			}
