@@ -4,6 +4,7 @@ import {
 	useEffect,
 	type KeyboardEvent,
 	type ChangeEvent,
+	useContext,
 } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
@@ -27,15 +28,18 @@ import {
 } from "../../slices/userSlice.ts";
 import { validation } from "../../utility/helper.ts";
 import type { RootState } from "../../store/store.tsx";
-import { isAxiosError } from "axios";
+import MyContext from "../context/MyContext.ts";
 
 export default function CreatePage() {
 	const dispatch = useDispatch();
 	const { products, data } = useSelector(
 		(state: RootState) => state.user.value,
 	);
-	const [orderList, setOrderList] = useState([]);
+	const popup = useContext(MyContext);
+	const [isLoading, setIsLoading] = useState<boolean>(true);
+	const [isLogin, setIsLogin] = useState<boolean>(false);
 
+	const [orderList, setOrderList] = useState([]);
 	const [username, setUsername] = useState<string>("");
 	const [title, setTitle] = useState<string>("");
 	const [author, setAuthor] = useState<string>("");
@@ -49,8 +53,19 @@ export default function CreatePage() {
 	const [productId, setProductId] = useState<string>("");
 
 	useEffect(() => {
-		getFetch("/user/user-product").then((res) => {
+		getDataFromBackend();
+	}, []);
+
+	const getDataFromBackend = async () => {
+		setTimeout(async () => {
+			const res = await getFetch("/user/user-product");
+
 			if (!res.success) {
+				popup({
+					isShow: true,
+					title: "Oops!",
+					message: "Gagal mengambil data produk user",
+				});
 				if (res.status === 401) {
 					dispatch(
 						setUser({
@@ -60,19 +75,22 @@ export default function CreatePage() {
 						}),
 					);
 					dispatch(setUserProducts([]));
-					sessionStorage.removeItem("token");
+					localStorage.removeItem("alhidayah-token");
 				}
 
-				alert("terjadi kesalahan");
+				setIsLogin(false);
+				setIsLoading(false);
+
 				return;
 			}
-
 			setUsername(res.data.username);
+			setIsLogin(true);
 			dispatch(setUserProducts(res.data.products));
-			console.log(res.data.orderList);
 			setOrderList(res.data.orderList);
-		});
-	}, []);
+
+			setIsLoading(false);
+		}, 700);
+	};
 
 	const hndlTitle = (e: ChangeEvent<HTMLInputElement>) => {
 		setTitle(e.target.value);
@@ -94,7 +112,9 @@ export default function CreatePage() {
 	const hndlPrice = (e: ChangeEvent<HTMLInputElement>) => {
 		/*masalahnya tedapat pada fitur dari laptop yaitu ketika menggulir
     mouse kebawah maka value dari input type number akan berkurangg, jika digulir ke atas
-    value type number bertambah*/
+    value type number bertambah
+    Sudah fix!
+    */
 
 		setPrice(e.target.value);
 	};
@@ -154,10 +174,14 @@ export default function CreatePage() {
 
 		putfetch(route, formData).then((res) => {
 			if (!res.success) {
+				popup({
+					isShow: true,
+					title: "Oops!",
+					message: "Gagal mengedit produk",
+				});
 				return;
 			}
 
-			console.log(res.data);
 			// mengubah global state untuk products
 			dispatch(editProduct(res.data.data));
 			// mengubah state untuk product user
@@ -202,6 +226,11 @@ export default function CreatePage() {
 
 		postFetch("/product", formData).then((res) => {
 			if (!res.success) {
+				popup({
+					isShow: true,
+					title: "Oops!",
+					message: "Gagal menambahkan produk",
+				});
 				return;
 			}
 
@@ -227,14 +256,13 @@ export default function CreatePage() {
 		if (confirm("Apakah yakin ingin dihapus?")) {
 			delFetch(`/product/${id}`).then((res) => {
 				if (!res.success) {
-					alert("Gagal menghapus");
-
+					popup({
+						isShow: true,
+						title: "Oops!",
+						message: "Gagal menghapus produk",
+					});
 					return;
 				}
-
-				console.log(res);
-
-				alert(res.data.msg);
 				dispatch(delProduct({ id }));
 				dispatch(delUserProduct({ id }));
 			});
@@ -293,7 +321,6 @@ export default function CreatePage() {
 			};
 		},
 	) => {
-		console.log(checkout);
 		const data = {
 			respons,
 			product: checkout.item,
@@ -302,10 +329,14 @@ export default function CreatePage() {
 		};
 		postFetch("/user/respons", data).then((res) => {
 			if (!res.success) {
+				popup({
+					isShow: true,
+					title: "Oops!",
+					message: "Gagal mengirim respons",
+				});
 				return;
 			}
 
-			console.log(res);
 			setOrderList((prev) =>
 				prev.filter(
 					(order: {
@@ -327,7 +358,22 @@ export default function CreatePage() {
 		});
 	};
 
-	if (!data._id) {
+	if (isLoading) {
+		return (
+			<div className="container-fluid p-0 my-5 d-flex justify-content-center align-items-center dev-container">
+				<div className="w-75 border border-2 border-info rounded p-3">
+					<h1 className="text-center loading-text">
+						Loading
+						<span className="dot-1">.</span>
+						<span className="dot-2">.</span>
+						<span className="dot-3">.</span>
+					</h1>
+				</div>
+			</div>
+		);
+	}
+
+	if (!isLogin) {
 		return (
 			<div className="container-fluid p-0 my-5 d-flex justify-content-center align-items-center dev-container">
 				<div className="w-75 border border-2 border-info rounded p-3">
@@ -481,7 +527,7 @@ export default function CreatePage() {
 				</div>
 			</div>
 			<div className="my-3 border rounded p-1">
-				<h4>Daftar Buku Tersedia</h4>
+				<h4>Daftar Buku</h4>
 				<div className="container-fluid d-flex overflow-auto p-2">
 					{products.map((product, i) => (
 						<div className="card dev-card mx-1" key={i}>

@@ -1,13 +1,11 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import { setUser, delUser } from "../../slices/userSlice.ts";
 import { getFetch, postFetch } from "../../utility/fetch.ts";
-import type { RootState } from "../../store/store.tsx";
-import { isAxiosError } from "axios";
+import MyContext from "../context/MyContext.ts";
 
 export default function LoginPage() {
-	const { data } = useSelector((state: RootState) => state.user.value);
 	const [isRegister, setIsRegister] = useState<boolean>(false);
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
@@ -15,26 +13,23 @@ export default function LoginPage() {
 	const email = useRef<HTMLInputElement>(null);
 	const password = useRef<HTMLInputElement>(null);
 	const [isLogin, setislogin] = useState<boolean>(false);
+	const popup = useContext(MyContext);
 
 	useEffect(() => {
-		if (!sessionStorage.getItem("token")) {
+		if (!localStorage.getItem("alhidayah-token")) {
 			return;
 		}
 		getFetch("/user/user-info").then((res) => {
 			if (!res.success) {
-				dispatch(delUser());
-
-				return;
+				return dispatch(delUser());
 			}
-
-			console.log(res);
 			setislogin(res.data.isLogin);
 		});
 	}, []);
 
 	const resetInput = () => {
+		// type guard
 		if (!username.current || !email.current || !password.current) {
-			alert("Please fill all fields");
 			return;
 		}
 
@@ -44,10 +39,14 @@ export default function LoginPage() {
 	};
 
 	const hndlSubmit = () => {
-		console.log(username.current, email.current, password.current);
 		if (isRegister) {
 			if (!username.current || !email.current || !password.current) {
 				alert("Please fill all fields");
+				popup({
+					isShow: true,
+					title: "Oops!",
+					message: "Please fill all fields",
+				});
 				return;
 			}
 			const data = {
@@ -57,28 +56,19 @@ export default function LoginPage() {
 			};
 
 			postFetch("/user/register", data).then((res) => {
-				// memastikan bahwa semua input itu bukan null
-				if (!username.current || !email.current || !password.current) {
-					return;
-				}
 				if (!res.success) {
-					if (isAxiosError(res.err)) {
-						// Cek jika ada response dari server (status 4xx/5xx)
-						if (res.err.response) {
-							// ✅ Akses aman: res.err.response.data.message
-							alert(res.err.response.data.message);
-						} else {
-							// Network Error murni atau Timeout
-							alert("Kesalahan Jaringan. Cek koneksi Anda.");
-						}
-					} else {
-						// Error non-Axios lainnya
-						alert("Terjadi kesalahan saat memproses login.");
-					}
-
+					popup({
+						isShow: true,
+						title: "Oops!",
+						message: "Gagal registrasi",
+					});
 					return;
 				}
-				console.log("berhasil");
+				popup({
+					isShow: true,
+					title: "Success!",
+					message: "Berhasil registrasi",
+				});
 				resetInput();
 			});
 		} else {
@@ -94,27 +84,15 @@ export default function LoginPage() {
 			postFetch("/user/login", data).then((res) => {
 				// 1. Kasus Gagal (res.success === false)
 				if (!res.success) {
-					// Cek jika error yang dibungkus adalah AxiosError
-					// Asumsi: AxiosError disimpan di res.error
-					if (isAxiosError(res.err)) {
-						// Cek jika ada response dari server (status 4xx/5xx)
-						if (res.err.response) {
-							// ✅ Akses aman: res.err.response.data.message
-							alert(res.err.response.data.message);
-						} else {
-							// Network Error murni atau Timeout
-							alert("Kesalahan Jaringan. Cek koneksi Anda.");
-						}
-					} else {
-						// Error non-Axios lainnya
-						alert("Terjadi kesalahan saat memproses login.");
-					}
-
+					popup({
+						isShow: true,
+						title: "Oops!",
+						message: "Gagal login",
+					});
 					return;
 				}
 
-				// 2. Kasus Sukses (res.success === true)
-				sessionStorage.setItem("token", res.data.token);
+				localStorage.setItem("alhidayah-token", res.data.token);
 				dispatch(setUser(res.data.data));
 				navigate("/");
 			});
@@ -123,16 +101,24 @@ export default function LoginPage() {
 	const hndlLogout = () => {
 		postFetch("/user/logout", {}).then((res) => {
 			if (!res.success) {
+				popup({
+					isShow: true,
+					title: "Oops!",
+					message: "Gagal logout",
+				});
 				return;
 			}
 
+			popup({
+				isShow: true,
+				title: "Success!",
+				message: "Berhasil logout",
+			});
 			dispatch(delUser());
 			setislogin(false);
-			sessionStorage.removeItem("token");
+			localStorage.removeItem("alhidayah-token");
 		});
 	};
-
-	console.log(data);
 
 	return (
 		<div className="container-fluid d-flex dev-container">

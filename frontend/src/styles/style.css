@@ -58,3 +58,60 @@ body {
 .dev-container {
 	height: 100vh;
 }
+.pop-up-container {
+	background-color: rgba(0, 0, 0, 0.2);
+	width: 100vw;
+	height: 100vh;
+	z-index: 1;
+	bottom: 0;
+	position: fixed;
+}
+.pop-up-box {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 250px;
+	background-color: white;
+	z-index: 2;
+	border-radius: 10px;
+	padding: 1rem;
+}
+/* Definisikan keyframes untuk animasi */
+@keyframes blink {
+	0% {
+		opacity: 0;
+	}
+	50% {
+		opacity: 1;
+	}
+	100% {
+		opacity: 0;
+	}
+}
+
+.loading-text {
+	font-size: 2em;
+	font-family: sans-serif;
+	color: #333;
+}
+
+/* Terapkan animasi pada setiap titik dengan delay berbeda */
+.loading-text span {
+	animation: blink 1.4s infinite both; /* Terapkan animasi blink */
+}
+
+.dot-1 {
+	/* Titik pertama muncul paling awal */
+	animation-delay: 0s;
+}
+
+.dot-2 {
+	/* Titik kedua muncul sedikit terlambat */
+	animation-delay: 0.2s;
+}
+
+.dot-3 {
+	/* Titik ketiga muncul paling akhir */
+	animation-delay: 0.4s;
+}

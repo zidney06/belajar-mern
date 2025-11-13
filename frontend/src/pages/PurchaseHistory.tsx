@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { delFetch, getFetch } from "../../utility/fetch.ts";
 import { useNavigate, Link } from "react-router-dom";
+import MyContext from "../context/MyContext.ts";
 
 interface Item {
 	_id: string;
@@ -23,25 +24,41 @@ interface PurchaseHistory {
 
 export default function PurchaseHistory() {
 	const [purchaseHistory, setPurchaseHistory] = useState<PurchaseHistory[]>([]);
+	const [isLoading, setIsLoading] = useState<boolean>(true);
+	const [isLogin, setIsLogin] = useState<boolean>(false);
+
 	const navigate = useNavigate();
+	const popup = useContext(MyContext);
 
 	useEffect(() => {
-		if (!sessionStorage.getItem("token")) {
-			return;
-		}
-		getFetch("/user/purchase-history").then((res) => {
+		getDataFromBackend();
+	}, []);
+
+	const getDataFromBackend = async () => {
+		setTimeout(async () => {
+			const res = await getFetch("/user/purchase-history");
+
 			if (!res.success) {
 				setPurchaseHistory([]);
+
+				setIsLogin(false);
+				setIsLoading(false);
+				popup({
+					isShow: true,
+					title: "Oops!",
+					message: "Gagal mengambil informasi pembelian",
+				});
 				return;
 			}
 
-			console.log(res);
 			setPurchaseHistory(res.data.data);
-		});
-	}, []);
+
+			setIsLoading(false);
+			setIsLogin(true);
+		}, 700);
+	};
 
 	const handleDelete = (purchaseId: string) => {
-		console.log(purchaseId);
 		delFetch("/product/purchase/" + purchaseId).then((res) => {
 			if (!res.success) {
 				if (res.status === 401) {
@@ -55,9 +72,39 @@ export default function PurchaseHistory() {
 			setPurchaseHistory((prev) =>
 				prev.filter((history) => history._id !== res.data.data),
 			);
-			console.log(res);
 		});
 	};
+
+	if (isLoading) {
+		return (
+			<div className="container-fluid p-0 my-5 d-flex justify-content-center align-items-center dev-container">
+				<div className="w-75 border border-2 border-info rounded p-3">
+					<h1 className="text-center loading-text">
+						Loading
+						<span className="dot-1">.</span>
+						<span className="dot-2">.</span>
+						<span className="dot-3">.</span>
+					</h1>
+				</div>
+			</div>
+		);
+	}
+
+	if (!isLogin) {
+		return (
+			<div className="container-fluid p-0 my-5 d-flex justify-content-center align-items-center dev-container">
+				<div className="w-75 border border-2 border-info rounded p-3">
+					<h1 className="text-center">Harap Login Terlebih Dahulu</h1>
+					<Link
+						to="/login"
+						className="btn btn-outline-primary mx-auto d-block w-25"
+					>
+						Login
+					</Link>
+				</div>
+			</div>
+		);
+	}
 
 	if (purchaseHistory.length === 0) {
 		return (

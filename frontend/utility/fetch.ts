@@ -26,7 +26,7 @@ type CustomFetchResponse<T> = SuccessResponse<T> | ErrorResponse;
 export const getFetch = async (
 	url: string,
 ): Promise<CustomFetchResponse<any>> => {
-	const token = sessionStorage.getItem("token");
+	const token = localStorage.getItem("alhidayah-token");
 
 	try {
 		const res = await axios.get(baseUrl + url, {
@@ -40,13 +40,13 @@ export const getFetch = async (
 	} catch (err) {
 		if (isAxiosError(err)) {
 			if (err.response) {
-				alert(err.response.data.msg);
+				console.log(err.response.data.msg);
 			} else {
-				alert("Kesalahan Jaringan. Cek koneksi Anda.");
+				console.log("Kesalahan Jaringan. Cek koneksi Anda.");
 			}
 		} else {
 			// Error non-Axios lainnya
-			alert("Terjadi kesalahan saat memproses login.");
+			console.log("Terjadi kesalahan saat memproses login.");
 		}
 		console.log(err);
 		return { err, success: false };
@@ -57,7 +57,7 @@ export const postFetch = async (
 	url: string,
 	data: any,
 ): Promise<CustomFetchResponse<any>> => {
-	const token = sessionStorage.getItem("token");
+	const token = localStorage.getItem("alhidayah-token");
 
 	try {
 		const res = await axios.post(baseUrl + url, data, {
@@ -71,13 +71,13 @@ export const postFetch = async (
 	} catch (err) {
 		if (isAxiosError(err)) {
 			if (err.response) {
-				alert(err.response.data.msg);
+				console.log(err.response.data.msg);
 			} else {
-				alert("Kesalahan Jaringan. Cek koneksi Anda.");
+				console.log("Kesalahan Jaringan. Cek koneksi Anda.");
 			}
 		} else {
 			// Error non-Axios lainnya
-			alert("Terjadi kesalahan saat memproses login.");
+			console.log("Terjadi kesalahan saat memproses login.");
 		}
 		console.log(err);
 		return { err, success: false };
@@ -88,7 +88,7 @@ export const putfetch = async (
 	url: string,
 	data: any,
 ): Promise<CustomFetchResponse<any>> => {
-	const token = sessionStorage.getItem("token");
+	const token = localStorage.getItem("alhidayah-token");
 
 	try {
 		const res = await axios.put(baseUrl + url, data, {
@@ -102,13 +102,13 @@ export const putfetch = async (
 	} catch (err) {
 		if (isAxiosError(err)) {
 			if (err.response) {
-				alert(err.response.data.msg);
+				console.log(err.response.data.msg);
 			} else {
-				alert("Kesalahan Jaringan. Cek koneksi Anda.");
+				console.log("Kesalahan Jaringan. Cek koneksi Anda.");
 			}
 		} else {
 			// Error non-Axios lainnya
-			alert("Terjadi kesalahan saat memproses login.");
+			console.log("Terjadi kesalahan saat memproses login.");
 		}
 		console.log(err);
 		return { err, success: false };
@@ -118,7 +118,7 @@ export const putfetch = async (
 export const delFetch = async (
 	url: string,
 ): Promise<CustomFetchResponse<any>> => {
-	const token = sessionStorage.getItem("token");
+	const token = localStorage.getItem("alhidayah-token");
 
 	try {
 		const res = await axios.delete(baseUrl + url, {
@@ -132,13 +132,13 @@ export const delFetch = async (
 	} catch (err) {
 		if (isAxiosError(err)) {
 			if (err.response) {
-				alert(err.response.data.msg);
+				console.log(err.response.data.msg);
 			} else {
-				alert("Kesalahan Jaringan. Cek koneksi Anda.");
+				console.log("Kesalahan Jaringan. Cek koneksi Anda.");
 			}
 		} else {
 			// Error non-Axios lainnya
-			alert("Terjadi kesalahan saat memproses login.");
+			console.log("Terjadi kesalahan saat memproses login.");
 		}
 		console.log(err);
 		return { err, success: false };

@@ -53,7 +53,6 @@ const newProductSlice = createSlice({
 			state: InitialState,
 			action: PayloadAction<Product[]>,
 		) => {
-			console.log(action.payload);
 			state.value.products = action.payload;
 		},
 		addUserProduct: (state: InitialState, action: PayloadAction<Product>) => {
