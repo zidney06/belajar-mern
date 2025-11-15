@@ -582,7 +582,7 @@ export default function CreatePage() {
 					</button>
 				</div>
 			</div>
-			<div className="my-3 border rounded p-1">
+			<div className="my-3 mx-3 border rounded p-1">
 				<h4>Daftar Buku</h4>
 				<div className="container-fluid d-flex overflow-auto p-2">
 					{products.map((product, i) => (
@@ -620,7 +620,7 @@ export default function CreatePage() {
 					))}
 				</div>
 			</div>
-			<div className="my-3 border rounded p-1">
+			<div className="my-3 mx-3 border rounded p-1">
 				<h4>Daftar permintaan pembelian</h4>
 				<div className="container-fluid d-flex overflow-auto p-2">
 					{orderList.map(

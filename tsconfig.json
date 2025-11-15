@@ -12,5 +12,5 @@
 		"removeComments": true
 	},
 	"include": ["./backend/src"],
-	"exclude": ["node_modules", "uploads"]
+	"exclude": ["node_modules", "uploads", "backend/src/migration.ts"]
 }

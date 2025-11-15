@@ -26,20 +26,8 @@ const purchaseItemsSchema = new mongoose.Schema({
 	},
 });
 
-const userSchema = new mongoose.Schema(
+const userDataSchema = new mongoose.Schema(
 	{
-		username: {
-			type: String,
-			required: true,
-		},
-		email: {
-			type: String,
-			required: true,
-		},
-		password: {
-			type: String,
-			required: true,
-		},
 		orderList: {
 			type: [orderListSchema],
 		},
@@ -57,10 +45,16 @@ const userSchema = new mongoose.Schema(
 );
 
 // gunakan skema dari mongoose sebagai type ts
-export type UserSchema = InferSchemaType<typeof userSchema>;
+export type UserDataType = InferSchemaType<typeof userDataSchema>;
 export type PurchaseItem = InferSchemaType<typeof purchaseItemsSchema>;
 export type OrderList = InferSchemaType<typeof orderListSchema>;
 
-const User = mongoose.model("User", userSchema);
+/*
+Pertama	Nama Model	Nama yang digunakan di sisi kode (UserData).
+Kedua	Skema	Objek yang mendefinisikan struktur data (userDataSchema).
+Ketiga	Nama Koleksi	Menimpa aturan penamaan otomatis Mongoose.
+*/
 
-export default User;
+const UserData = mongoose.model("UserData", userDataSchema, "userData");
+
+export default UserData;

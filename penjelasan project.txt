@@ -5,6 +5,37 @@ fitur:
 - membuat fitur log in dab account
 - intinya iki tok
 
+skema userAuthGoogle:
+- googleId
+- email
+- username
+- userDataId
+
+skema userAuth:
+- email
+- username
+- password (Hash)
+- userDataId
+
+Perhatian: Mekanisme bind Anda bekerja dengan baik, tetapi ada kondisi batas (edge cases) yang harus Anda tangani di backend:
+
+Jika Email Google Sama dengan Email Lokal:
+
+- Proses: Pengguna login dengan akun lokal, lalu mencoba bind dengan Google. Email Google yang digunakan sama dengan email akun lokal.
+
+- Tindakan BE: Proses bind diperbolehkan. Buat userAuthGoogle baru yang merujuk ke userData yang sama.
+
+Jika Email Google Berbeda, Tapi Sudah Terpakai:
+
+- Proses: Pengguna login dengan akun lokal (Email A), lalu mencoba bind dengan Google (Email B). Ternyata Email B sudah dimiliki oleh dokumen userAuthGoogle lain (yang merujuk ke userData C).
+
+- Tindakan BE: TOLAK bind. Informasikan pengguna bahwa akun Google tersebut sudah terikat dengan akun lain.
+
+tambahan:
+- fitur login dengan google
+- bind akun aplikasi ke google
+- saat user sudah berhasil registrasi, langsung login otomatis
+
 /*jika sudah lumayan menguasai BE dan FE maka pakai project ini
 membuat sebuah aplikasi data sekolah*/
 

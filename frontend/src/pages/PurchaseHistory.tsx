@@ -28,7 +28,6 @@ export default function PurchaseHistory() {
 	const [isLoading, setIsLoading] = useState<boolean>(true);
 	const [isLogin, setIsLogin] = useState<boolean>(false);
 
-	const navigate = useNavigate();
 	const popup = useContext(MyContext);
 
 	useEffect(() => {
@@ -96,6 +95,8 @@ export default function PurchaseHistory() {
 		});
 	};
 
+	console.log(isLogin, purchaseHistory.length);
+
 	if (isLoading) {
 		return (
 			<div className="container-fluid p-0 my-5 d-flex justify-content-center align-items-center dev-container">
@@ -112,22 +113,6 @@ export default function PurchaseHistory() {
 	}
 
 	if (!isLogin) {
-		return (
-			<div className="container-fluid p-0 my-5 d-flex justify-content-center align-items-center dev-container">
-				<div className="w-75 border border-2 border-info rounded p-3">
-					<h1 className="text-center">Harap Login Terlebih Dahulu</h1>
-					<Link
-						to="/login"
-						className="btn btn-outline-primary mx-auto d-block w-25"
-					>
-						Login
-					</Link>
-				</div>
-			</div>
-		);
-	}
-
-	if (purchaseHistory.length === 0) {
 		return (
 			<div className="container-fluid p-0 my-5 d-flex justify-content-center align-items-center dev-container">
 				<div className="w-75 border border-2 border-info rounded p-3">

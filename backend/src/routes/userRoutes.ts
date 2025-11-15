@@ -1,9 +1,10 @@
 import express, { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import User, { PurchaseItem, UserSchema } from "../models/userModel";
+import UserData, { UserDataType } from "../models/userDataModel";
 import BLToken from "../models/BLTokenModel";
 import { validationToken } from "../middlewares/middleware";
+import UserAuth from "../models/userAuthModel";
 
 const router = express.Router();
 
@@ -22,7 +23,7 @@ router.get("/user-info", validationToken, async (req, res) => {
 	const userData = req.userData;
 
 	try {
-		const user = await User.findById(userData.id);
+		const user = await UserAuth.findById(userData.id);
 
 		if (!user) {
 			return res.status(404).json({
@@ -42,6 +43,13 @@ router.get("/user-info", validationToken, async (req, res) => {
 	}
 });
 
+interface UserAuthType {
+	_id: string;
+	email: string;
+	password: string;
+	userData: UserDataType;
+}
+
 router.get("/user-product", validationToken, async (req, res) => {
 	if (!req.userData) {
 		return res.status(401).json({
@@ -52,18 +60,28 @@ router.get("/user-product", validationToken, async (req, res) => {
 	const userData = req.userData;
 
 	try {
-		const user = await User.findById({ _id: userData.id }).populate(
-			"userProducts",
-		);
+		const user = await UserAuth.findById(userData.id)
+			.populate({
+				path: "userData",
+				populate: {
+					path: "userProducts",
+				},
+			})
+			.exec();
 
 		if (!user) {
-			return res.status(404).json({ msg: "gagal" });
+			return res.status(404).json({ msg: "User tidak ditemukan" });
 		}
 
+		// agar ts tidak rewel di
+		const converted = user as unknown as UserAuthType;
+
+		console.log(converted);
+
 		res.json({
-			username: userData.username,
-			products: user.userProducts,
-			orderList: user.orderList,
+			username: user.username,
+			products: converted.userData.userProducts,
+			orderList: converted.userData.orderList,
 		});
 	} catch (e) {
 		if (isError(e)) {
@@ -82,7 +100,7 @@ router.get("/purchase-history", validationToken, async (req, res) => {
 	const userData = req.userData;
 
 	try {
-		const user = await User.findById(userData.id);
+		const user = await UserAuth.findById(userData.id).populate("userData");
 
 		if (!user) {
 			return res.status(404).json({
@@ -90,15 +108,12 @@ router.get("/purchase-history", validationToken, async (req, res) => {
 			});
 		}
 
-		if (!user) {
-			return res.status(404).json({
-				msg: "User tidak ditemukan",
-			});
-		}
+		// agar ts tidak rewel di
+		const converted = user as unknown as UserAuthType;
 
 		res.status(200).json({
 			msg: "Berhasil",
-			data: user.purchaseItems,
+			data: converted.userData.purchaseItems,
 		});
 	} catch (e) {
 		if (isError(e)) {
@@ -124,17 +139,9 @@ router.post("/respons", validationToken, async (req, res) => {
 
 	try {
 		if (respons) {
-			// hapus permintaan pembelian pembeli (buyer) dari orderList
-			const seller: UserSchema | null = await User.findByIdAndUpdate(
-				userData.id,
-				{
-					$pull: {
-						orderList: {
-							_id: orderId,
-						},
-					},
-				},
-			);
+			// ambil data seller lewat userAuth
+			const seller = await UserAuth.findById(userData.id);
+			const buyer = await UserAuth.findById(buyerId);
 
 			if (!seller) {
 				return res.status(404).json({
@@ -142,9 +149,37 @@ router.post("/respons", validationToken, async (req, res) => {
 				});
 			}
 
+			if (!buyer) {
+				return res.status(404).json({
+					msg: "Seller tidak ditemukan",
+				});
+			}
+
+			// baru lakukan operasi pada property userData
+			// hapus permintaan pembelian pembeli (buyer) dari orderList
+			const sellerData = await UserData.findByIdAndUpdate(
+				seller.userData,
+				{
+					$pull: {
+						orderList: {
+							_id: orderId,
+						},
+					},
+				},
+				{
+					new: true,
+				},
+			);
+
+			if (!sellerData) {
+				return res.status(404).json({
+					msg: "Seller tidak ditemukan",
+				});
+			}
+
 			// update status pembelian
-			const buyer = await User.findByIdAndUpdate(
-				buyerId, // ID dokumen User yang dicari
+			const buyerData = await UserData.findByIdAndUpdate(
+				buyer.userData, // ID dokumen User yang dicari
 				{
 					// 💡 Operator $set dengan notasi positional $[] (arrayFilters)
 					$set: {
@@ -163,7 +198,7 @@ router.post("/respons", validationToken, async (req, res) => {
 				},
 			);
 
-			if (!buyer) {
+			if (!buyerData) {
 				return res.status(404).json({
 					msg: "Buyer tidak ditemukan",
 				});
@@ -176,17 +211,9 @@ router.post("/respons", validationToken, async (req, res) => {
 				},
 			});
 		} else {
-			// hapus permintaan pembelian pembeli (buyer) dari orderList
-			const seller: UserSchema | null = await User.findByIdAndUpdate(
-				userData.id,
-				{
-					$pull: {
-						orderList: {
-							_id: orderId,
-						},
-					},
-				},
-			);
+			// ambil data seller lewat userAuth
+			const seller = await UserAuth.findById(userData.id);
+			const buyer = await UserAuth.findById(buyerId);
 
 			if (!seller) {
 				return res.status(404).json({
@@ -194,8 +221,34 @@ router.post("/respons", validationToken, async (req, res) => {
 				});
 			}
 
-			const buyer = await User.findByIdAndUpdate(
-				buyerId, // ID dokumen User yang dicari
+			if (!buyer) {
+				return res.status(404).json({
+					msg: "Seller tidak ditemukan",
+				});
+			}
+			// hapus permintaan pembelian pembeli (buyer) dari orderList
+			const sellerData = await UserData.findByIdAndUpdate(
+				seller.userData,
+				{
+					$pull: {
+						orderList: {
+							_id: orderId,
+						},
+					},
+				},
+				{
+					new: true,
+				},
+			);
+
+			if (!sellerData) {
+				return res.status(404).json({
+					msg: "Seller tidak ditemukan",
+				});
+			}
+
+			const buyerData = await UserData.findByIdAndUpdate(
+				buyer.userData, // ID dokumen User yang dicari
 				{
 					// 💡 Operator $set dengan notasi positional $[] (arrayFilters)
 					$set: {
@@ -214,7 +267,7 @@ router.post("/respons", validationToken, async (req, res) => {
 				},
 			);
 
-			if (!buyer) {
+			if (!buyerData) {
 				return res.status(404).json({
 					msg: "Buyer tidak ditemukan",
 				});
@@ -240,7 +293,7 @@ router.post("/register", async (req, res) => {
 
 	try {
 		// cek apakah user sudah ada atau belum
-		const existingUser = await User.findOne({ email: user.email });
+		const existingUser = await UserAuth.findOne({ email: user.email });
 
 		if (existingUser) {
 			return res.status(409).json({ msg: "Email sudah digunakan!" });
@@ -252,14 +305,24 @@ router.post("/register", async (req, res) => {
 
 		user.password = await bcrypt.hash(user.password, salt);
 
-		const newUser = new User({
+		// buat data userData
+		const newUserData = new UserData({
+			orderList: [],
+			purchaseItems: [],
+			userProducts: [],
+		});
+
+		// buat data userAuth untuk
+		const newUserAuth = new UserAuth({
 			username: user.username,
 			email: user.email,
 			password: user.password,
+			userData: newUserData._id, // ini merujuk ke dokumen userData yang telah dibuat
 		});
 
 		// simpan data user baru ke DB
-		await newUser.save();
+		await newUserAuth.save();
+		await newUserData.save();
 
 		res.status(201).json({
 			success: true,
@@ -284,7 +347,7 @@ router.post("/login", async (req, res) => {
 	}
 	try {
 		// cari apakah user ada di DB atau tidak
-		const user = await User.findOne({ email: req.body.email });
+		const user = await UserAuth.findOne({ email: req.body.email });
 
 		// kalau gak ada maka respon = 404
 		if (!user) {
@@ -293,7 +356,7 @@ router.post("/login", async (req, res) => {
 			});
 		}
 
-		const isMatch = await bcrypt.compare(req.body.password, user.password);
+		const isMatch = await bcrypt.compare(req.body.password, user.password!);
 
 		// cek apakah password benar atau tidak
 		if (isMatch) {

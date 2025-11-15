@@ -7,6 +7,7 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+backend/src/migration.ts
 node_modules/
 backend/uploads/
 dist

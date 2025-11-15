@@ -4,8 +4,16 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import { validationToken, storage } from "../middlewares/middleware";
-import User from "../models/userModel";
+import UserData, { UserDataType } from "../models/userDataModel";
 import Product from "../models/product.model";
+import UserAuth from "../models/userAuthModel";
+
+interface UserAuthType {
+	_id: string;
+	email: string;
+	password: string;
+	userData: UserDataType;
+}
 
 const upload = multer({
 	storage,
@@ -41,11 +49,14 @@ router.post("/", validationToken, upload.single("file"), async (req, res) => {
 	const userData = req.userData;
 
 	try {
-		const user = await User.findById(userData.id);
+		const user = await UserAuth.findById(userData.id);
 
 		if (!user) {
 			return res.status(401).json({ msg: "User tidak ditemukan!" });
 		}
+
+		// agar ts tidak rewel karena property userData baru terisi saat run time
+		const converted = user as unknown as UserAuthType;
 
 		// cek apakah user mengirimkan file atau tidak
 		if (!req.file) {
@@ -75,9 +86,21 @@ router.post("/", validationToken, upload.single("file"), async (req, res) => {
 		});
 
 		// masukan id barang baru ke dalam array produk milik user
-		user.userProducts.push(newProduct._id);
+		const data = await UserData.findByIdAndUpdate(
+			user.userData,
+			{
+				$push: {
+					userProducts: newProduct._id,
+				},
+			},
+			{ new: true },
+		);
 
-		await Promise.all([newProduct.save(), user.save()]);
+		if (!data) {
+			return res.status(404).json({ success: false, msg: "User not found" });
+		}
+
+		await newProduct.save();
 
 		res.status(201).json({
 			success: true,
@@ -102,7 +125,7 @@ router.post("/buy-product", validationToken, async (req, res) => {
 		});
 	}
 
-	const user = req.userData;
+	const userData = req.userData;
 	const { productId } = req.body;
 
 	try {
@@ -114,8 +137,10 @@ router.post("/buy-product", validationToken, async (req, res) => {
 			});
 		}
 
-		const seller = await User.findById(dataProduct.ownerId);
-		const buyer = await User.findById(user.id);
+		const seller = await UserAuth.findById(dataProduct.ownerId);
+		const buyer = await UserAuth.findById(userData.id);
+
+		console.log(seller, buyer);
 
 		if (!seller || !buyer) {
 			return res.status(404).json({
@@ -130,19 +155,31 @@ router.post("/buy-product", validationToken, async (req, res) => {
 			});
 		}
 
-		seller.orderList.push({
-			buyerId: buyer._id,
-			sellerId: seller._id,
-			item: dataProduct,
-		});
-
-		buyer.purchaseItems.push({
-			item: dataProduct,
-			status: "pending",
-			sellerId: seller._id,
-		});
-
-		await Promise.all([seller.save(), buyer.save()]);
+		// rubah memakai findByIdAndUpdate
+		await Promise.all([
+			UserData.findByIdAndUpdate(
+				seller.userData,
+				{
+					$push: {
+						orderList: {
+							buyerId: buyer._id,
+							sellerId: seller._id,
+							item: dataProduct,
+						},
+					},
+				},
+				{ new: true },
+			),
+			UserData.findByIdAndUpdate(buyer.userData, {
+				$push: {
+					purchaseItems: {
+						item: dataProduct,
+						status: "pending",
+						sellerId: seller._id,
+					},
+				},
+			}),
+		]);
 
 		res.status(200).json({ msg: "Pembelian telah diterima!" });
 	} catch (e) {
@@ -261,8 +298,16 @@ router.delete("/purchase/:purchaseId", validationToken, async (req, res) => {
 	const userData = req.userData;
 
 	try {
-		const user = await User.findByIdAndUpdate(
-			userData.id,
+		const user = await UserAuth.findById(userData.id);
+
+		if (!user) {
+			return res.status(404).json({
+				msg: "User tidak ditemukan",
+			});
+		}
+
+		const data = await UserData.findByIdAndUpdate(
+			user.userData,
 			{
 				$pull: {
 					purchaseItems: {
@@ -273,7 +318,7 @@ router.delete("/purchase/:purchaseId", validationToken, async (req, res) => {
 			{ new: true, runValidators: true },
 		);
 
-		if (!user) {
+		if (!data) {
 			return res.status(404).json({
 				msg: "User tidak ditemukan",
 			});
