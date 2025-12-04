@@ -8,14 +8,15 @@ import { connectDB } from "./config/db";
 import productRoutes from "./routes/productRoutes";
 import userRoutes from "./routes/userRoutes";
 import rateLimit from "express-rate-limit";
+import authRoutes from "./routes/authRoutes";
 
 dotenv.config();
 
 const app: express.Express = express();
-const PORT = 3000;
+const PORT = process.env.PORT;
 
 //penggunaan middleware cors agar saat dihit tidak menyebabkan error akses denied karena cors
-app.use(cors({ origin: "http://localhost:5173", credentials: true })); //dengan ini mengizinkan semua domain untuk mengakses endpoint
+app.use(cors({ origin: "http://localhost:5173", credentials: true })); //dengan "*" mengizinkan semua domain untuk mengakses endpoint
 // app.use(cors({origin: 'http://localhost:5173'}))
 /*
 jika ingin hanya origin tertentu saja
@@ -68,6 +69,7 @@ if (process.env.NODE_ENV === "production") {
 // maka dapat diakses melalui URL: http://localhost:3000/fotos/gambar.jpg
 app.use("/folder/fotos", express.static(path.join(__dirname, "uploads")));
 
+app.use("/api/auth", authRoutes);
 app.use("/api/product", limiter, productRoutes);
 app.use("/api/user", limiter, userRoutes);
 

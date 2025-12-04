@@ -15,14 +15,14 @@ const userAuthGoogleSchema = new mongoose.Schema({
 		type: String,
 		required: true,
 	},
-	userDataId: {
+	userData: {
 		type: mongoose.Schema.Types.ObjectId,
 		required: true,
 		ref: "UserData",
 	},
 });
 
-export type UserAuthGoogle = InferSchemaType<typeof userAuthGoogleSchema>;
+export type UserAuthGoogleType = InferSchemaType<typeof userAuthGoogleSchema>;
 
 const UserAuthGoogle = mongoose.model("UserAuthGoogle", userAuthGoogleSchema);
 

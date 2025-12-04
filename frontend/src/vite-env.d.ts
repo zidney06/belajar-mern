@@ -9,6 +9,7 @@ interface ImportMeta {
 interface ImportMetaEnv {
 	// Semua variabel env dari Vite yang dimulai dengan VITE_
 	readonly VITE_BASE_URL: string;
+	readonly VITE_GOOGLE_CLIENT_ID: string;
 	readonly VITE_API_KEY: string; // Tambahkan jika Anda punya variabel lain
 
 	// ... Anda bisa menambahkan variabel lingkungan lain di sini

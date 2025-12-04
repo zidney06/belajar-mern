@@ -39,12 +39,13 @@ export default function HomePage() {
 					popup({
 						isShow: true,
 						title: "Oops!",
-						message: "Terjadi kesalahan saat memproses login.",
+						message: "Terjadi kesalahan saat mengambil data produk.",
 					});
 				}
 				setIsLoading(false);
 				return;
 			}
+			console.log(res);
 			setProducts(res.data.data);
 			setIsLoading(false);
 		}, 700);

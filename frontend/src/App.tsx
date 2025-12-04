@@ -15,6 +15,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import Alert from "./components/Alert.tsx";
 import PopupContext from "./context/MyContext.ts";
+import AccountPage from "./pages/AccountPage.tsx";
+import EmailBind from "./pages/EmailBind.tsx";
 
 interface PopUpConfig {
 	isShow: boolean;
@@ -56,6 +58,8 @@ function App() {
 						<Route path="/create" element={<CreatePage />} />
 						<Route path="/login" element={<LoginPage />} />
 						<Route path="/purchase-history" element={<PurchaseHistory />} />
+						<Route path="/account" element={<AccountPage />} />
+						<Route path="/email-bind" element={<EmailBind />} />
 						<Route path="*" element={<NotFound />} />
 					</Routes>
 				</div>

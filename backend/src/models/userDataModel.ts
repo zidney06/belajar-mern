@@ -26,8 +26,24 @@ const purchaseItemsSchema = new mongoose.Schema({
 	},
 });
 
+const loginWithSchema = new mongoose.Schema({
+	type: {
+		type: String,
+		enum: ["email", "google"],
+		required: true,
+	},
+	email: {
+		type: String,
+		required: true,
+	},
+});
+
 const userDataSchema = new mongoose.Schema(
 	{
+		username: {
+			type: String,
+			required: true,
+		},
 		orderList: {
 			type: [orderListSchema],
 		},
@@ -38,6 +54,7 @@ const userDataSchema = new mongoose.Schema(
 				ref: "Product",
 			},
 		],
+		loginWith: [loginWithSchema],
 	},
 	{
 		timestamps: true, //jika true, maka saaat memasukan data kedalam db akan ada satu data tambahan yaitu data tanggal
@@ -47,6 +64,7 @@ const userDataSchema = new mongoose.Schema(
 // gunakan skema dari mongoose sebagai type ts
 export type UserDataType = InferSchemaType<typeof userDataSchema>;
 export type PurchaseItem = InferSchemaType<typeof purchaseItemsSchema>;
+export type LoginWithType = InferSchemaType<typeof loginWithSchema>;
 export type OrderList = InferSchemaType<typeof orderListSchema>;
 
 /*

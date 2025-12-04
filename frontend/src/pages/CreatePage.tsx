@@ -266,7 +266,7 @@ export default function CreatePage() {
 					popup({
 						isShow: true,
 						title: "Oops!",
-						message: "Terjadi kesalahan saat memproses login.",
+						message: "Terjadi kesalahan saat membuat produk baru.",
 					});
 				}
 				return;
@@ -448,7 +448,9 @@ export default function CreatePage() {
 	return (
 		<div className="container-fluid p-0 my-5">
 			<div className="dev-input-box mx-auto border border-info rounded border-2 px-2">
-				<h1 className="text-center">{isEdit ? "Edit Data" : "Input Data"}</h1>
+				<h1 className="text-center">
+					{isEdit ? "Edit produk" : "Buat produk baru"}
+				</h1>
 				<h4>Halo: {username}</h4>
 				<div className="mb-3">
 					<label htmlFor="title" className="form-label">
@@ -599,8 +601,9 @@ export default function CreatePage() {
 							>
 								<h5 className="card-title">{product.title}</h5>
 								<p className="mb-0">Author: {product.author}</p>
-								<p className="mb-0">Price: {product.price}</p>
 								<p className="mb-0">tags: {product.tags.join(", ")}</p>
+								<p className="mb-0">Price: {product.price}</p>
+								<p className="mb-0">ISBN: {product.ISBN}</p>
 								<div className="d-flex justify-content-between position-absolute bottom-0 end-0 start-0 p-2">
 									<button
 										className="btn btn-outline-danger"

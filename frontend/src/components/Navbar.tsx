@@ -31,8 +31,13 @@ export default function Navbar() {
 									</Link>
 								</li>
 								<li className="nav-item mx-2">
+									<Link to="/account" className="text-light link">
+										Account
+									</Link>
+								</li>
+								<li className="nav-item mx-2">
 									<Link to="/login" className="text-light link">
-										Login/Logout
+										Login/Register
 									</Link>
 								</li>
 							</ul>

@@ -53,7 +53,7 @@ body {
 .auth-box {
 	max-width: 300px;
 	box-sizing: content-box;
-	max-height: 275px;
+	max-height: 400px;
 }
 .dev-container {
 	height: 100vh;
